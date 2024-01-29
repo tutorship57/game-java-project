@@ -9,7 +9,7 @@ public class Game {
     JFrame frame;
     ImageIcon backgroundImage;
     JLabel backgroundLabel;
-    int velocity = 25;
+    int velocity = 50;
     int frameWidth = 800, frameHeight = 600;
     public static void main(String[] args) {
         new Game();
@@ -56,18 +56,26 @@ public class Game {
         if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP) {
             if (BirdLabel.getY() > 0 )    
                 moveLabel(BirdLabel, BirdLabel.getX(), BirdLabel.getY() - velocity);
+            if (BirdLabel.getY() < 0)
+                BirdLabel.setLocation(BirdLabel.getX(), 0);
         // goDown
         } else if (code == KeyEvent.VK_S || code == KeyEvent.VK_DOWN) {
             if (BirdLabel.getY() < frameHeight - BirdLabel.getHeight())
                 moveLabel(BirdLabel, BirdLabel.getX(), BirdLabel.getY() + velocity);
+            if (BirdLabel.getY() > 510)
+                BirdLabel.setLocation(BirdLabel.getX(), 510);
         // goLeft
         } else if (code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT) {
             if (BirdLabel.getX() > 0)
                 moveLabel(BirdLabel, BirdLabel.getX() - velocity, BirdLabel.getY());
+            if (BirdLabel.getX() < 0)
+                BirdLabel.setLocation(0, BirdLabel.getY());
         // goRight
         } else if (code == KeyEvent.VK_D || code == KeyEvent.VK_RIGHT) {
             if (BirdLabel.getX() < frameWidth - BirdLabel.getWidth())
                 moveLabel(BirdLabel, BirdLabel.getX() + velocity, BirdLabel.getY());
+            if (BirdLabel.getX() > 735)
+                BirdLabel.setLocation(735, BirdLabel.getY());
         }
         System.out.println("X:"+BirdLabel.getX() +" Y: "+ BirdLabel.getY() );
     }
