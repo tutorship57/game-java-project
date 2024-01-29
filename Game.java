@@ -9,13 +9,15 @@ public class Game {
     JFrame frame;
     ImageIcon backgroundImage;
     JLabel backgroundLabel;
-    int velocity = 50;
+    int velocity = 25;
+    int frameWidth = 800, frameHeight = 600;
     public static void main(String[] args) {
         new Game();
     }
     public Game() {
         frame = new JFrame("My Tutor Game");
-        frame.setBounds(50, 50, 800, 600);
+        frame.setBounds(50, 50, frameWidth, frameHeight);
+        frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Add backgroundLabel to the frame
@@ -50,15 +52,24 @@ public class Game {
     }
     private void handleKeyPress(KeyEvent e) {
         int code = e.getKeyCode();
-        if (BirdLabel.getY() != 0 && (code == KeyEvent.VK_W || code == KeyEvent.VK_UP)) {
-            moveLabel(BirdLabel, BirdLabel.getX(), BirdLabel.getY() - velocity);
+        // goUp
+        if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP) {
+            if (BirdLabel.getY() > 0 )    
+                moveLabel(BirdLabel, BirdLabel.getX(), BirdLabel.getY() - velocity);
+        // goDown
         } else if (code == KeyEvent.VK_S || code == KeyEvent.VK_DOWN) {
-            moveLabel(BirdLabel, BirdLabel.getX(), BirdLabel.getY() + velocity);
+            if (BirdLabel.getY() < frameHeight - BirdLabel.getHeight())
+                moveLabel(BirdLabel, BirdLabel.getX(), BirdLabel.getY() + velocity);
+        // goLeft
         } else if (code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT) {
-            moveLabel(BirdLabel, BirdLabel.getX() - velocity, BirdLabel.getY());
+            if (BirdLabel.getX() > 0)
+                moveLabel(BirdLabel, BirdLabel.getX() - velocity, BirdLabel.getY());
+        // goRight
         } else if (code == KeyEvent.VK_D || code == KeyEvent.VK_RIGHT) {
-            moveLabel(BirdLabel, BirdLabel.getX() + velocity, BirdLabel.getY());
+            if (BirdLabel.getX() < frameWidth - BirdLabel.getWidth())
+                moveLabel(BirdLabel, BirdLabel.getX() + velocity, BirdLabel.getY());
         }
+        System.out.println("X:"+BirdLabel.getX() +" Y: "+ BirdLabel.getY() );
     }
     private void moveLabel(JLabel label, int newX, int newY) {
         label.setLocation(newX, newY);
