@@ -1,28 +1,66 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 
 public class Game {
-
+    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    ImageIcon BirdImg;
+    JLabel BirdLabel;
+    JFrame frame;
+    ImageIcon backgroundImage;
+    JLabel backgroundLabel;
+    int velocity = 50;
+    public static void main(String[] args) {
+        new Game();
+    }
     public Game() {
-        JFrame frame = new JFrame();
-        
-        frame.setTitle("My Tutor Game");
-        frame.setBounds(50, 50, 200, 30);
-        frame.setSize(1080, 720);
-        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        frame = new JFrame("My Tutor Game");
+        frame.setBounds(50, 50, 800, 600);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // set Icon
-        ImageIcon icon = new ImageIcon("src/icon.jpg");
-        frame.setIconImage(icon.getImage());
-
-        // set Background
-        ImageIcon background = new ImageIcon("src/background.jpg");
-        JLabel backgroundLabel = new JLabel(background);
-        backgroundLabel.setHorizontalAlignment(JLabel.CENTER);
-        backgroundLabel.setBounds(0, 0, frame.getWidth(), frame.getHeight());
-
+        // Add backgroundLabel to the frame
+        backgroundImage = new ImageIcon("src/background.jpg");
+        backgroundLabel = new JLabel(backgroundImage);
         frame.add(backgroundLabel);
+
+        // Bird
+        BirdImg =  new ImageIcon("src/bird.png");
+        BirdLabel = new JLabel(BirdImg);
+        BirdLabel.setBounds(50, 50, 51, 51); // Set size directly
+        backgroundLabel.add(BirdLabel);
+
+        frame.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                handleKeyPress(e);
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+            }
+        });
+        // Display the frame
         frame.setVisible(true);
+    }
+    private void handleKeyPress(KeyEvent e) {
+        int code = e.getKeyCode();
+        if (BirdLabel.getY() != 0 && (code == KeyEvent.VK_W || code == KeyEvent.VK_UP)) {
+            moveLabel(BirdLabel, BirdLabel.getX(), BirdLabel.getY() - velocity);
+        } else if (code == KeyEvent.VK_S || code == KeyEvent.VK_DOWN) {
+            moveLabel(BirdLabel, BirdLabel.getX(), BirdLabel.getY() + velocity);
+        } else if (code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT) {
+            moveLabel(BirdLabel, BirdLabel.getX() - velocity, BirdLabel.getY());
+        } else if (code == KeyEvent.VK_D || code == KeyEvent.VK_RIGHT) {
+            moveLabel(BirdLabel, BirdLabel.getX() + velocity, BirdLabel.getY());
+        }
+    }
+    private void moveLabel(JLabel label, int newX, int newY) {
+        label.setLocation(newX, newY);
     }
 }
