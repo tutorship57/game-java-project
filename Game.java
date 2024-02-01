@@ -1,15 +1,14 @@
 import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
-import java.util.Timer;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class Game {
     static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    static Timer timer = new Timer();
     static Random rd = new Random();
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     ImageIcon BirdImg;
@@ -64,8 +63,14 @@ public class Game {
                 handleMovement();
             }
         });
-        fallingObject1(backgroundLabel);
-        fallingObject2(backgroundLabel);
+        fallingObject(backgroundLabel, Obj1.getJLabel(), 2, 500);
+        fallingObject(backgroundLabel, Obj1.getJLabel(), 2, 600);
+        fallingObject(backgroundLabel, Obj1.getJLabel(), 2, 700);
+        fallingObject(backgroundLabel, Obj2.getJLabel(), 3, 500);
+        fallingObject(backgroundLabel, Obj2.getJLabel(), 3, 600);
+        randomObject(backgroundLabel, Obj1.getJLabel(), 500);
+        randomObject(backgroundLabel, Obj2.getJLabel(), 600);
+
         // Display the frame
         frame.setVisible(true);
     }
@@ -98,41 +103,47 @@ public class Game {
         }
         System.out.println("X:" + BirdLabel.getX() + " Y:" + BirdLabel.getY());
     }
-
-    private void fallingObject1(JLabel label) {
-        //test 
-        JLabel o = Obj1.getJLabel();
+    private void randomObject(JLabel label, JLabel o, int delay) {
         int minX = 250;
         int maxX = frameWidth - minX;
         int minY = 100;
         int maxY = frameHeight - minY;
+        label.add(o);
         scheduler.scheduleAtFixedRate(() -> {
-            label.add(o);
-            o.setVisible(true);
             int positionX = rd.nextInt(maxX - minX + 1) + minX;
             int positionY = rd.nextInt(maxY - minY + 1) + minY;
             o.setLocation(positionX, positionY);
+            o.setVisible(true);
             scheduler.schedule(() -> {
                 o.setVisible(false);
             }, 700, TimeUnit.MILLISECONDS);
-        }, 1000, 500, TimeUnit.MILLISECONDS);
+        }, 0, delay, TimeUnit.MILLISECONDS);
     }
-    private void fallingObject2(JLabel label) {
-        //test 
-        JLabel o = Obj2.getJLabel();
-        int minX = 250;
+    private void fallingObject(JLabel label, JLabel o, int a, int delay) {
+        int minX = 50;
         int maxX = frameWidth - minX;
-        int minY = 100;
-        int maxY = frameHeight - minY;
-        scheduler.scheduleAtFixedRate(() -> {
-            label.add(o);
-            o.setVisible(true);
+        label.add(o);
+        scheduler.schedule(() -> {
             int positionX = rd.nextInt(maxX - minX + 1) + minX;
-            int positionY = rd.nextInt(maxY - minY + 1) + minY;
-            o.setLocation(positionX, positionY);
-            scheduler.schedule(() -> {
-                o.setVisible(false);
-            }, 700, TimeUnit.MILLISECONDS);
-        }, 700, 500, TimeUnit.MILLISECONDS);
+            final int[] positionY = {0};
+            final int[] velocity = {5};
+            final int[] acceleration = {a};
+        
+            Timer timer = new Timer(35, new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    o.setVisible(true);
+                    positionY[0] += velocity[0] += acceleration[0];
+                    o.setLocation(positionX, positionY[0]);
+        
+                    if (positionY[0] >= 500) {
+                        o.setVisible(false);
+                        ((Timer) e.getSource()).stop();
+                        fallingObject(label, o, a, delay);
+                    }
+                }
+            });
+            timer.start();
+        }, delay, TimeUnit.MILLISECONDS);
     }
 }
