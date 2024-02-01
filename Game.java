@@ -17,7 +17,7 @@ public class Game {
     ImageIcon backgroundImage;
     JLabel backgroundLabel;
     int velocity = 15; // Adjusted the velocity for testing
-    int frameWidth = 800, frameHeight = 600;
+    int frameWidth = 1080, frameHeight = 720;
     Set<Integer> pressedKeys = new HashSet<>();
 
     public static void main(String[] args) {
@@ -26,7 +26,7 @@ public class Game {
 
     public Game() {
         frame = new JFrame("My Tutor Game");
-        frame.setBounds(50, 50, frameWidth, frameHeight);
+        frame.setBounds(0, 0, frameWidth, frameHeight);
         frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         Container container = frame.getContentPane();
@@ -129,14 +129,14 @@ public class Game {
             final int[] velocity = {5};
             final int[] acceleration = {a};
         
-            Timer timer = new Timer(35, new ActionListener() {
+            Timer timer = new Timer(20, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     o.setVisible(true);
                     positionY[0] += velocity[0] += acceleration[0];
                     o.setLocation(positionX, positionY[0]);
         
-                    if (positionY[0] >= 500) {
+                    if (positionY[0] >= frameHeight) {
                         o.setVisible(false);
                         ((Timer) e.getSource()).stop();
                         fallingObject(label, o, a, delay);
