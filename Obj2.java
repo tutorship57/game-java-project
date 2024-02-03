@@ -1,7 +1,7 @@
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
-public class Obj2 {
+public class Obj2 extends PapaObj{
     public static JLabel getJLabel() {
         int width = 60;
         int height = 60;

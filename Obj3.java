@@ -1,11 +1,11 @@
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
-public class Obj1 extends PapaObj{
+public class Obj3 extends PapaObj{
     public static JLabel getJLabel() {
-        int width = 50;
-        int height = 50;
-        ImageIcon img = new ImageIcon("src/Obj1.png");
+        int width = 60;
+        int height = 60;
+        ImageIcon img = new ImageIcon("src/bird.png");
         JLabel label = new JLabel(img);
         label.setBounds(50,50, width, height);
         return label;
