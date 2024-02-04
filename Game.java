@@ -23,7 +23,6 @@ public class Game {
     public static void main(String[] args) {
         new Game();
     }
-
     public Game() {
         frame = new JFrame("My Tutor Game");
         frame.setBounds(0, 0, frameWidth, frameHeight);
@@ -63,26 +62,7 @@ public class Game {
                 handleMovement();
             }
         });
-        int delay = 500;
-        HashMap <Integer,PapaObj> ObjContainer = new HashMap<>();
-        ObjContainer.put(0,new Obj1());
-        ObjContainer.put(1,new Obj2());
-        ObjContainer.put(2,new Obj3());
-
-        Random rand  = new Random();
-        for(int i=0;i<20;i++){
-            PapaObj tmp = ObjContainer.get(rand.nextInt(ObjContainer.size()));
-            if(tmp instanceof Obj1){
-                fallingObject(backgroundLabel,((Obj1)tmp).getJLabel(), 2, delay);
-            }
-            if(tmp instanceof Obj2){
-                fallingObject(backgroundLabel,((Obj2)tmp).getJLabel(), 2, delay);
-            }
-            if(tmp instanceof Obj3){
-                fallingObject(backgroundLabel,((Obj3)tmp).getJLabel(), 2, delay);
-            }
-            delay+=100;
-        }
+        randomFalling(50);
         // fallingObject(backgroundLabel, Obj1.getJLabel(), 2, 600);
         // fallingObject(backgroundLabel, Obj1.getJLabel(), 2, 700);
         // fallingObject(backgroundLabel, Obj1.getJLabel(), 2, 800);
@@ -139,10 +119,30 @@ public class Game {
             }, 700, TimeUnit.MILLISECONDS);
         }, 0, delay, TimeUnit.MILLISECONDS);
     }
+    private void randomFalling(int amount) {
+        int delay = 500;
+        HashMap <Integer, Object> ObjContainer = new HashMap<>();
+        ObjContainer.put(0,new Obj1());
+        ObjContainer.put(1,new Obj2());
+        ObjContainer.put(2,new Obj3());
+
+        for(int i = 0; i < amount; i++) {
+            Object tmp = ObjContainer.get(rd.nextInt(ObjContainer.size()));
+            if(tmp instanceof Obj1) {
+                fallingObject(backgroundLabel, Obj1.getJLabel(), 2, delay);
+            }
+            if(tmp instanceof Obj2) {
+                fallingObject(backgroundLabel, Obj2.getJLabel(), 3, delay);
+            }
+            if(tmp instanceof Obj3) {
+                fallingObject(backgroundLabel, Obj3.getJLabel(), 1, delay);
+            }
+            delay += 100;
+        }
+    }
     private void fallingObject(JLabel label, JLabel o, int a, int delay) {
         int minX = 50;
         int maxX = frameWidth - minX;
-        label.add(o);
         scheduler.schedule(() -> {
             int positionX = rd.nextInt(maxX - minX + 1) + minX;
             final int[] positionY = {0};
@@ -152,6 +152,7 @@ public class Game {
             Timer timer = new Timer(20, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
+                    label.add(o);
                     o.setVisible(true);
                     positionY[0] += velocity[0] += acceleration[0];
                     o.setLocation(positionX, positionY[0]);
@@ -166,6 +167,4 @@ public class Game {
             timer.start();
         }, delay, TimeUnit.MILLISECONDS);
     }
-    
-
 }
