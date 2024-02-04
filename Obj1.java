@@ -10,4 +10,5 @@ public class Obj1 {
         label.setBounds(50,50, width, height);
         return label;
     }
+    
 }

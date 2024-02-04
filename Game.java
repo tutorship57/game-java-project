@@ -14,12 +14,18 @@ public class Game {
     ImageIcon BirdImg;
     JLabel BirdLabel;
     JFrame frame;
+    JPanel panel;
     ImageIcon backgroundImage;
     JLabel backgroundLabel;
     int velocity = 15; // Adjusted the velocity for testing
     int frameWidth = 1080, frameHeight = 720;
     Set<Integer> pressedKeys = new HashSet<>();
-
+    MouseAdapter labelMouseListener = new MouseAdapter() {
+        public void mousePressed(MouseEvent e) {
+            JLabel pressedLabel = (JLabel)e.getSource();
+            pressedLabel.setIcon(Image.getIcon());
+        }
+    };
     public static void main(String[] args) {
         new Game();
     }
@@ -42,7 +48,7 @@ public class Game {
         BirdLabel = new JLabel(BirdImg);
         BirdLabel.setBounds(50, 50, 51, 51); // Set size directly
         backgroundLabel.add(BirdLabel);
-
+        BirdLabel.addMouseListener(labelMouseListener);
         frame.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -62,7 +68,7 @@ public class Game {
                 handleMovement();
             }
         });
-        randomFalling(50);
+        randomFalling(10);
         // fallingObject(backgroundLabel, Obj1.getJLabel(), 2, 600);
         // fallingObject(backgroundLabel, Obj1.getJLabel(), 2, 700);
         // fallingObject(backgroundLabel, Obj1.getJLabel(), 2, 800);
@@ -141,6 +147,10 @@ public class Game {
         }
     }
     private void fallingObject(JLabel label, JLabel o, int a, int delay) {
+        if (o.getMouseListeners().length == 0) {
+            o.addMouseListener(labelMouseListener);
+        }
+        final Icon icon = o.getIcon();
         int minX = 50;
         int maxX = frameWidth - minX;
         scheduler.schedule(() -> {
@@ -149,7 +159,7 @@ public class Game {
             final int[] velocity = {5};
             final int[] acceleration = {a};
         
-            Timer timer = new Timer(20, new ActionListener() {
+            Timer timer = new Timer(100, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     label.add(o);
@@ -159,6 +169,7 @@ public class Game {
                     
                     if (positionY[0] >= frameHeight) {
                         o.setVisible(false);
+                        o.setIcon(icon);
                         ((Timer) e.getSource()).stop();
                         fallingObject(label, o, a, delay);
                     }
