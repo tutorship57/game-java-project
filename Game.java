@@ -1,3 +1,4 @@
+import javax.sound.sampled.Clip;
 import javax.swing.*;
 import javax.swing.Timer;
 import java.awt.*;
@@ -6,10 +7,16 @@ import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineEvent;
+import javax.sound.sampled.LineListener;
 
 public class Game {
     static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     static Random rd = new Random();
+    private Clip soundClip;
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     ImageIcon BirdImg;
     JLabel BirdLabel;
@@ -25,6 +32,8 @@ public class Game {
         public void mousePressed(MouseEvent e) {
             JLabel pressedLabel = (JLabel)e.getSource();
             pressedLabel.setIcon(Image.getIcon());
+            pressedLabel.setVisible(false);
+            playSound("src/pop.wav");
         }
     };
     public static void main(String[] args) {
@@ -49,13 +58,6 @@ public class Game {
         backgroundLabel.setLayout(null);
         container.add(backgroundLabel);
         frame.setLocationRelativeTo(null);
-        
-        // Bird
-        BirdImg = new ImageIcon("src/bird.png");
-        BirdLabel = new JLabel(BirdImg);
-        BirdLabel.setBounds(50, 50, 51, 51); // Set size directly
-        backgroundLabel.add(BirdLabel);
-        BirdLabel.addMouseListener(labelMouseListener);
         frame.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -72,10 +74,30 @@ public class Game {
             public void keyReleased(KeyEvent e) {
                 int code = e.getKeyCode();
                 pressedKeys.remove(code);
-                handleMovement();
             }
         });
     }
+    private void playSound(String soundFilePath) {
+        try {
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(getClass().getResourceAsStream(soundFilePath));
+            soundClip = AudioSystem.getClip();
+            soundClip.open(audioInputStream);
+    
+            soundClip.addLineListener(new LineListener() {
+                @Override
+                public void update(LineEvent event) {
+                    if (event.getType() == LineEvent.Type.STOP) {
+                        event.getLine().close();
+                    }
+                }
+            });
+    
+            soundClip.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
     private void handleMovement() {
         // goUp
         if (pressedKeys.contains(KeyEvent.VK_W) || pressedKeys.contains(KeyEvent.VK_UP)) {
@@ -88,7 +110,6 @@ public class Game {
             if (BirdLabel.getY() < frameHeight - BirdLabel.getHeight())
                 BirdLabel.setLocation(BirdLabel.getX(), BirdLabel.getY() + velocity);
             else BirdLabel.setLocation(BirdLabel.getX(), frameHeight - BirdLabel.getHeight());
-
         }
         // goLeft
         if (pressedKeys.contains(KeyEvent.VK_A) || pressedKeys.contains(KeyEvent.VK_LEFT)) {
@@ -130,18 +151,33 @@ public class Game {
         for(int i = 0; i < amount; i++) {
             Object tmp = ObjContainer.get(rd.nextInt(ObjContainer.size()));
             if(tmp instanceof Obj1) {
-                fallingObject(Obj1.getJLabel(), Obj1.getVelocity(), delay);
+                fallingObject(new Obj1(), delay);
             }
             if(tmp instanceof Obj2) {
-                fallingObject(Obj2.getJLabel(), Obj2.getVelocity(), delay);
+                fallingObject(new Obj2(), delay);
             }
             if(tmp instanceof Obj3) {
-                fallingObject(Obj3.getJLabel(), Obj3.getVelocity(), delay);
+                fallingObject(new Obj3(), delay);
             }
-            delay += 100;
+            delay += 300;
         }
     }
-    private void fallingObject(JLabel o, int velo, int delay) {
+    private void fallingObject(Object obj, int delay){
+        JLabel o;
+        int velo;
+        if (obj instanceof Obj1) {
+            o = Obj1.getJLabel();
+            velo = Obj1.getVelocity();
+        }
+        else if (obj instanceof Obj2) {
+            o = Obj2.getJLabel();
+            velo = Obj2.getVelocity();
+        }
+        else {
+            o = Obj3.getJLabel();
+            velo = Obj2.getVelocity();
+        } 
+
         if (o.getMouseListeners().length == 0) {
             o.addMouseListener(labelMouseListener);
         }
@@ -151,22 +187,22 @@ public class Game {
         scheduler.schedule(() -> {
             int positionX = rd.nextInt(maxX - minX + 1) + minX;
             final int[] positionY = {0};
-            final int[] velocity = {velo + 20};
+            final int[] velocity = {velo + 5};
             final int[] acceleration = {0};
-        
+            o.setVisible(true);
             Timer timer = new Timer(30, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     backgroundLabel.add(o);
-                    o.setVisible(true);
                     positionY[0] += velocity[0] += acceleration[0];
                     o.setLocation(positionX, positionY[0]);
                     
                     if (positionY[0] >= frameHeight) {
                         o.setVisible(false);
                         o.setIcon(icon);
+                        backgroundLabel.remove(o);
                         ((Timer) e.getSource()).stop();
-                        fallingObject(o, velo, delay);
+                        fallingObject(obj, delay);
                     }
                 }
             });
