@@ -19,7 +19,7 @@ public class Game {
     ImageIcon backgroundImage;
     JLabel backgroundLabel;
     int velocity = 15; // Adjusted the velocity for testing
-    int frameWidth = 1280, frameHeight = 720;
+    int frameWidth = 1080, frameHeight = 720;
     Set<Integer> pressedKeys = new HashSet<>();
     MouseAdapter labelMouseListener = new MouseAdapter() {
         public void mousePressed(MouseEvent e) {
@@ -44,7 +44,7 @@ public class Game {
     }
     private void Components() {
         // Add backgroundLabel to the frame with null layout manager
-        backgroundImage = new ImageIcon("src/background.jpg");
+        backgroundImage = new ImageIcon("src/background.png");
         backgroundLabel = new JLabel(backgroundImage);
         backgroundLabel.setLayout(null);
         container.add(backgroundLabel);
@@ -130,28 +130,28 @@ public class Game {
         for(int i = 0; i < amount; i++) {
             Object tmp = ObjContainer.get(rd.nextInt(ObjContainer.size()));
             if(tmp instanceof Obj1) {
-                fallingObject(Obj1.getJLabel(), 2, delay);
+                fallingObject(Obj1.getJLabel(), Obj1.getVelocity(), delay);
             }
             if(tmp instanceof Obj2) {
-                fallingObject(Obj2.getJLabel(), 3, delay);
+                fallingObject(Obj2.getJLabel(), Obj2.getVelocity(), delay);
             }
             if(tmp instanceof Obj3) {
-                fallingObject(Obj3.getJLabel(), 1, delay);
+                fallingObject(Obj3.getJLabel(), Obj3.getVelocity(), delay);
             }
             delay += 100;
         }
     }
-    private void fallingObject(JLabel o, int a, int delay) {
+    private void fallingObject(JLabel o, int velo, int delay) {
         if (o.getMouseListeners().length == 0) {
             o.addMouseListener(labelMouseListener);
         }
         final Icon icon = o.getIcon();
-        int minX = 50;
-        int maxX = frameWidth - minX;
+        int minX = 300;
+        int maxX = frameWidth - minX - 70;
         scheduler.schedule(() -> {
             int positionX = rd.nextInt(maxX - minX + 1) + minX;
             final int[] positionY = {0};
-            final int[] velocity = {5};
+            final int[] velocity = {velo + 20};
             final int[] acceleration = {0};
         
             Timer timer = new Timer(30, new ActionListener() {
@@ -166,7 +166,7 @@ public class Game {
                         o.setVisible(false);
                         o.setIcon(icon);
                         ((Timer) e.getSource()).stop();
-                        fallingObject(o, a, delay);
+                        fallingObject(o, velo, delay);
                     }
                 }
             });
