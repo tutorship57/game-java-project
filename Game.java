@@ -20,20 +20,23 @@ public class Game {
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     ImageIcon BirdImg;
     JLabel BirdLabel;
+    JLabel scoreBox;
     JFrame frame;
     Container container;
     JPanel panel;
     ImageIcon backgroundImage;
     JLabel backgroundLabel;
+    int score = 0;
     int velocity = 15; // Adjusted the velocity for testing
     int frameWidth = 1080, frameHeight = 720;
     Set<Integer> pressedKeys = new HashSet<>();
     MouseAdapter labelMouseListener = new MouseAdapter() {
         public void mousePressed(MouseEvent e) {
             JLabel pressedLabel = (JLabel)e.getSource();
-            pressedLabel.setIcon(Image.getIcon());
+            scoreUpdate(pressedLabel);
             pressedLabel.setVisible(false);
             playSound("src/pop.wav");
+            System.out.println(score);
         }
     };
     public static void main(String[] args) {
@@ -44,12 +47,36 @@ public class Game {
         container = frame.getContentPane();
 
         Components();
+        scoreBox();
         randomFalling(10);
 
         frame.setBounds(0, 0, frameWidth, frameHeight);
         frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+    }
+    private void scoreBox() {
+        Color textColor = new Color(255, 0, 0); // ตั้งค่าสี (RGB)
+        Font font = new Font("Arial", Font.BOLD, 32);
+        scoreBox = new JLabel();
+        scoreBox.setBounds(20, 20, 150, 100);
+        backgroundLabel.add(scoreBox);
+        scoreBox.setFont(font);
+        scoreBox.setForeground(textColor);
+        scoreBox.setText("Score: " + score);
+    }
+    private void scoreUpdate(JLabel clickedLabel) {
+        if (((ImageIcon)(clickedLabel.getIcon())).getImage().equals(Image.getObj1ImageIcon().getImage())) {
+            score += 1;
+        }
+        else if (((ImageIcon)(clickedLabel.getIcon())).getImage().equals(Image.getObj2ImageIcon().getImage())) {
+            score += 2;
+        }
+        else if (((ImageIcon)(clickedLabel.getIcon())).getImage().equals(Image.getObj3ImageIcon().getImage())) {
+            score -= 1; 
+        }
+        scoreBox.setText("Score: " + score);
     }
     private void Components() {
         // Add backgroundLabel to the frame with null layout manager
@@ -57,7 +84,6 @@ public class Game {
         backgroundLabel = new JLabel(backgroundImage);
         backgroundLabel.setLayout(null);
         container.add(backgroundLabel);
-        frame.setLocationRelativeTo(null);
         frame.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -67,7 +93,6 @@ public class Game {
             public void keyPressed(KeyEvent e) {
                 int code = e.getKeyCode();
                 pressedKeys.add(code);
-                handleMovement();
             }
 
             @Override
@@ -187,8 +212,8 @@ public class Game {
         scheduler.schedule(() -> {
             int positionX = rd.nextInt(maxX - minX + 1) + minX;
             final int[] positionY = {0};
-            final int[] velocity = {velo + 5};
-            final int[] acceleration = {0};
+            final int[] velocity = {velo};
+            final int[] acceleration = {1};
             o.setVisible(true);
             Timer timer = new Timer(30, new ActionListener() {
                 @Override
