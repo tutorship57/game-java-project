@@ -9,6 +9,5 @@ public class Obj1 {
         JLabel label = new JLabel(img);
         label.setBounds(50,50, width, height);
         return label;
-    }
-    
+    }  
 }

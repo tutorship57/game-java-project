@@ -14,11 +14,12 @@ public class Game {
     ImageIcon BirdImg;
     JLabel BirdLabel;
     JFrame frame;
+    Container container;
     JPanel panel;
     ImageIcon backgroundImage;
     JLabel backgroundLabel;
     int velocity = 15; // Adjusted the velocity for testing
-    int frameWidth = 1080, frameHeight = 720;
+    int frameWidth = 1280, frameHeight = 720;
     Set<Integer> pressedKeys = new HashSet<>();
     MouseAdapter labelMouseListener = new MouseAdapter() {
         public void mousePressed(MouseEvent e) {
@@ -31,11 +32,17 @@ public class Game {
     }
     public Game() {
         frame = new JFrame("My Tutor Game");
+        container = frame.getContentPane();
+
+        Components();
+        randomFalling(10);
+
         frame.setBounds(0, 0, frameWidth, frameHeight);
         frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        Container container = frame.getContentPane();
-
+        frame.setVisible(true);
+    }
+    private void Components() {
         // Add backgroundLabel to the frame with null layout manager
         backgroundImage = new ImageIcon("src/background.jpg");
         backgroundLabel = new JLabel(backgroundImage);
@@ -68,19 +75,7 @@ public class Game {
                 handleMovement();
             }
         });
-        randomFalling(10);
-        // fallingObject(backgroundLabel, Obj1.getJLabel(), 2, 600);
-        // fallingObject(backgroundLabel, Obj1.getJLabel(), 2, 700);
-        // fallingObject(backgroundLabel, Obj1.getJLabel(), 2, 800);
-        // fallingObject(backgroundLabel, Obj2.getJLabel(), 3, 900);
-        // fallingObject(backgroundLabel, Obj2.getJLabel(), 3, 1000);
-        // randomObject(backgroundLabel, Obj1.getJLabel(), 500);
-        // randomObject(backgroundLabel, Obj2.getJLabel(), 600);
-
-        // Display the frame
-        frame.setVisible(true);
     }
-
     private void handleMovement() {
         // goUp
         if (pressedKeys.contains(KeyEvent.VK_W) || pressedKeys.contains(KeyEvent.VK_UP)) {
@@ -109,12 +104,12 @@ public class Game {
         }
         System.out.println("X:" + BirdLabel.getX() + " Y:" + BirdLabel.getY());
     }
-    private void randomObject(JLabel label, JLabel o, int delay) {
+    private void randomObject(JLabel o, int delay) {
         int minX = 250;
         int maxX = frameWidth - minX;
         int minY = 100;
         int maxY = frameHeight - minY;
-        label.add(o);
+        backgroundLabel.add(o);
         scheduler.scheduleAtFixedRate(() -> {
             int positionX = rd.nextInt(maxX - minX + 1) + minX;
             int positionY = rd.nextInt(maxY - minY + 1) + minY;
@@ -135,18 +130,18 @@ public class Game {
         for(int i = 0; i < amount; i++) {
             Object tmp = ObjContainer.get(rd.nextInt(ObjContainer.size()));
             if(tmp instanceof Obj1) {
-                fallingObject(backgroundLabel, Obj1.getJLabel(), 2, delay);
+                fallingObject(Obj1.getJLabel(), 2, delay);
             }
             if(tmp instanceof Obj2) {
-                fallingObject(backgroundLabel, Obj2.getJLabel(), 3, delay);
+                fallingObject(Obj2.getJLabel(), 3, delay);
             }
             if(tmp instanceof Obj3) {
-                fallingObject(backgroundLabel, Obj3.getJLabel(), 1, delay);
+                fallingObject(Obj3.getJLabel(), 1, delay);
             }
             delay += 100;
         }
     }
-    private void fallingObject(JLabel label, JLabel o, int a, int delay) {
+    private void fallingObject(JLabel o, int a, int delay) {
         if (o.getMouseListeners().length == 0) {
             o.addMouseListener(labelMouseListener);
         }
@@ -157,12 +152,12 @@ public class Game {
             int positionX = rd.nextInt(maxX - minX + 1) + minX;
             final int[] positionY = {0};
             final int[] velocity = {5};
-            final int[] acceleration = {a};
+            final int[] acceleration = {0};
         
-            Timer timer = new Timer(100, new ActionListener() {
+            Timer timer = new Timer(30, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    label.add(o);
+                    backgroundLabel.add(o);
                     o.setVisible(true);
                     positionY[0] += velocity[0] += acceleration[0];
                     o.setLocation(positionX, positionY[0]);
@@ -171,7 +166,7 @@ public class Game {
                         o.setVisible(false);
                         o.setIcon(icon);
                         ((Timer) e.getSource()).stop();
-                        fallingObject(label, o, a, delay);
+                        fallingObject(o, a, delay);
                     }
                 }
             });
