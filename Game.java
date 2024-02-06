@@ -33,6 +33,7 @@ public class Game {
         public void mousePressed(MouseEvent e) {
             JLabel pressedLabel = (JLabel)e.getSource();
             gameUpdate(pressedLabel);
+            pressedLabel.setLocation(pressedLabel.getX(), FRAME_HEIGHT);
             playSound("src/sound/quack.wav");
         }
     };
@@ -92,7 +93,6 @@ public class Game {
         }
         scoreBox.setText("Score: " + score);
         clickedLabel.setVisible(false);
-        clickedLabel.setLocation(clickedLabel.getX(), FRAME_HEIGHT);
 
     }
     private void Components() {
@@ -142,6 +142,8 @@ public class Game {
         Object[] objects =  {   new Pomelo(), 
                                 new Banana(), 
                                 new Frog(),
+                                new Frog(),
+                                new Frog(),
                                 new Tomato(),
                                 new Peach()
                             };
@@ -174,7 +176,7 @@ public class Game {
             final double[] velocity = {velo};
             final double[] acceleration = {0.1};
             label.setVisible(true);
-            Timer timer = new Timer(10, new ActionListener() {
+            Timer timer = new Timer(1, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     backgroundlabel.add(label);
