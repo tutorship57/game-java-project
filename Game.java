@@ -20,8 +20,7 @@ public class Game {
     private static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private static Random rd = new Random();
     private static int bestScore;
-    private static JLabel bestScoreLabel;
-
+    private static Clip soundClip;
     private static JLabel scoreBox;
     private static JFrame frame;
     private static Container container;
@@ -95,10 +94,6 @@ public class Game {
         clickedLabel.setVisible(false);
         clickedLabel.setLocation(clickedLabel.getX(), FRAME_HEIGHT);
 
-        if (bestScore < score) {
-            bestScore = score;
-            bestScoreLabel.setText("Best: " + bestScore);
-        }
     }
     private void Components() {
         backgroundImage = new ImageIcon("src/img/garden.jpg");
@@ -123,17 +118,22 @@ public class Game {
             }
         });
     }
-    private static void playSound(String soundFilePath) {
+    private void playSound(String soundFilePath) {
         try {
-            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(Game.class.getResourceAsStream(soundFilePath));
-            Clip clip = AudioSystem.getClip();
-            clip.open(audioInputStream);
-            clip.addLineListener(event -> {
-                if (event.getType() == LineEvent.Type.STOP) {
-                    event.getLine().close();
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(getClass().getResourceAsStream(soundFilePath));
+            soundClip = AudioSystem.getClip();
+            soundClip.open(audioInputStream);
+
+            soundClip.addLineListener(new LineListener() {
+                @Override
+                public void update(LineEvent event) {
+                    if (event.getType() == LineEvent.Type.STOP) {
+                        event.getLine().close();
+                    }
                 }
             });
-            clip.start();
+
+            soundClip.start();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -160,21 +160,10 @@ public class Game {
         int velo = checkVelocity(obj);
 
         if (label.getMouseListeners().length == 0) {
-            if (obj instanceof Frog) {
-                label.addMouseListener(new MouseAdapter() {
-                    public void mousePressed(MouseEvent e) {
-                        gameUpdate(label);
-                        playSound("src/sound/quack.wav");
-                    }
-                });
-            } else {
-                label.addMouseListener(new MouseAdapter() {
-                    public void mousePressed(MouseEvent e) {
-                        gameUpdate(label);
-                        playSound("src/sound/pop.wav");
-                    }
-                });
-            }
+            if (obj instanceof Frog)
+                label.addMouseListener(wrongLabelListener);
+            else
+                label.addMouseListener(labelMouseListener);
         }
         final Icon icon = label.getIcon();
         int minX = 300;
