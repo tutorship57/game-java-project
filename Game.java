@@ -14,33 +14,42 @@ import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineListener;
 
 public class Game {
-    static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    static Random rd = new Random();
-    private Clip soundClip;
-    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    ImageIcon BirdImg;
-    JLabel BirdLabel;
-    JLabel scoreBox;
-    JFrame frame;
-    Container container;
-    JPanel panel;
-    ImageIcon backgroundImage;
-    JLabel backgroundLabel;
-    int score = 0;
-    int velocity = 15; // Adjusted the velocity for testing
-    int frameWidth = 1080, frameHeight = 720;
-    Set<Integer> pressedKeys = new HashSet<>();
+    private static final int FRAME_WIDTH = 1080;
+    private static final int FRAME_HEIGHT = 720;
+
+    private static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private static Random rd = new Random();
+    private static int bestScore;
+    private static JLabel bestScoreLabel;
+
+    private static JLabel scoreBox;
+    private static JFrame frame;
+    private static Container container;
+    private static ImageIcon backgroundImage;
+    private static JLabel backgroundlabel;
+    private static int score = 0;
+    private static Set<Integer> pressedKeys = new HashSet<>();
+
+    MouseAdapter wrongLabelListener = new MouseAdapter() {
+        public void mousePressed(MouseEvent e) {
+            JLabel pressedLabel = (JLabel)e.getSource();
+            gameUpdate(pressedLabel);
+            playSound("src/sound/quack.wav");
+        }
+    };
     MouseAdapter labelMouseListener = new MouseAdapter() {
         public void mousePressed(MouseEvent e) {
             JLabel pressedLabel = (JLabel)e.getSource();
-            scoreUpdate(pressedLabel);
-            pressedLabel.setVisible(false);
-            playSound("src/pop.wav");
-            System.out.println(score);
+            gameUpdate(pressedLabel);
+            playSound("src/sound/pop.wav");
         }
     };
     public static void main(String[] args) {
-        new Game();
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                new Game();
+            }
+        });
     }
     public Game() {
         frame = new JFrame("My Tutor Game");
@@ -48,9 +57,9 @@ public class Game {
 
         Components();
         scoreBox();
-        randomFalling(10);
+        startFalling(20);
 
-        frame.setBounds(0, 0, frameWidth, frameHeight);
+        frame.setBounds(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
         frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
@@ -58,32 +67,44 @@ public class Game {
     }
     private void scoreBox() {
         Color textColor = new Color(255, 0, 0); // ตั้งค่าสี (RGB)
-        Font font = new Font("Arial", Font.BOLD, 32);
+        Font font = new Font("Arial", Font.BOLD, 20);
         scoreBox = new JLabel();
         scoreBox.setBounds(20, 20, 150, 100);
-        backgroundLabel.add(scoreBox);
+        backgroundlabel.add(scoreBox);
         scoreBox.setFont(font);
         scoreBox.setForeground(textColor);
         scoreBox.setText("Score: " + score);
     }
-    private void scoreUpdate(JLabel clickedLabel) {
-        if (((ImageIcon)(clickedLabel.getIcon())).getImage().equals(Image.getObj1ImageIcon().getImage())) {
+    private void gameUpdate(JLabel clickedLabel) {
+        if (((ImageIcon)(clickedLabel.getIcon())).getImage().equals(Pomelo.getImage())) {
             score += 1;
         }
-        else if (((ImageIcon)(clickedLabel.getIcon())).getImage().equals(Image.getObj2ImageIcon().getImage())) {
+        else if (((ImageIcon)(clickedLabel.getIcon())).getImage().equals(Banana.getImage())) {
             score += 2;
         }
-        else if (((ImageIcon)(clickedLabel.getIcon())).getImage().equals(Image.getObj3ImageIcon().getImage())) {
+        else if (((ImageIcon)(clickedLabel.getIcon())).getImage().equals(Frog.getImage())) {
             score -= 1; 
         }
+        else if (((ImageIcon)(clickedLabel.getIcon())).getImage().equals(Tomato.getImage())) {
+            score += 1; 
+        }
+        else if (((ImageIcon)(clickedLabel.getIcon())).getImage().equals(Peach.getImage())) {
+            score += 1; 
+        }
         scoreBox.setText("Score: " + score);
+        clickedLabel.setVisible(false);
+        clickedLabel.setLocation(clickedLabel.getX(), FRAME_HEIGHT);
+
+        if (bestScore < score) {
+            bestScore = score;
+            bestScoreLabel.setText("Best: " + bestScore);
+        }
     }
     private void Components() {
-        // Add backgroundLabel to the frame with null layout manager
-        backgroundImage = new ImageIcon("src/background.png");
-        backgroundLabel = new JLabel(backgroundImage);
-        backgroundLabel.setLayout(null);
-        container.add(backgroundLabel);
+        backgroundImage = new ImageIcon("src/img/garden.jpg");
+        backgroundlabel = new JLabel(backgroundImage);
+        backgroundlabel.setLayout(null);
+        container.add(backgroundlabel);
         frame.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -102,136 +123,109 @@ public class Game {
             }
         });
     }
-    private void playSound(String soundFilePath) {
+    private static void playSound(String soundFilePath) {
         try {
-            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(getClass().getResourceAsStream(soundFilePath));
-            soundClip = AudioSystem.getClip();
-            soundClip.open(audioInputStream);
-    
-            soundClip.addLineListener(new LineListener() {
-                @Override
-                public void update(LineEvent event) {
-                    if (event.getType() == LineEvent.Type.STOP) {
-                        event.getLine().close();
-                    }
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(Game.class.getResourceAsStream(soundFilePath));
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInputStream);
+            clip.addLineListener(event -> {
+                if (event.getType() == LineEvent.Type.STOP) {
+                    event.getLine().close();
                 }
             });
-    
-            soundClip.start();
+            clip.start();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
-    private void handleMovement() {
-        // goUp
-        if (pressedKeys.contains(KeyEvent.VK_W) || pressedKeys.contains(KeyEvent.VK_UP)) {
-            if (BirdLabel.getY() > 0)
-                BirdLabel.setLocation(BirdLabel.getX(), BirdLabel.getY() - velocity);
-            else BirdLabel.setLocation(BirdLabel.getX(), 0);
-        }
-        // goDown
-        if (pressedKeys.contains(KeyEvent.VK_S) || pressedKeys.contains(KeyEvent.VK_DOWN)) {
-            if (BirdLabel.getY() < frameHeight - BirdLabel.getHeight())
-                BirdLabel.setLocation(BirdLabel.getX(), BirdLabel.getY() + velocity);
-            else BirdLabel.setLocation(BirdLabel.getX(), frameHeight - BirdLabel.getHeight());
-        }
-        // goLeft
-        if (pressedKeys.contains(KeyEvent.VK_A) || pressedKeys.contains(KeyEvent.VK_LEFT)) {
-            if (BirdLabel.getX() > 0)
-                BirdLabel.setLocation(BirdLabel.getX() - velocity, BirdLabel.getY());
-            else BirdLabel.setLocation(0, BirdLabel.getY());
-        }
-        // goRight
-        if (pressedKeys.contains(KeyEvent.VK_D) || pressedKeys.contains(KeyEvent.VK_RIGHT)) {
-            if (BirdLabel.getX() < frameWidth - BirdLabel.getWidth())
-                BirdLabel.setLocation(BirdLabel.getX() + velocity, BirdLabel.getY());
-            else BirdLabel.setLocation(frameWidth - BirdLabel.getWidth(), BirdLabel.getY());
-        }
-        System.out.println("X:" + BirdLabel.getX() + " Y:" + BirdLabel.getY());
+    private static Object getRandomObject() {
+        Object[] objects =  {   new Pomelo(), 
+                                new Banana(), 
+                                new Frog(),
+                                new Tomato(),
+                                new Peach()
+                            };
+        return objects[rd.nextInt(objects.length)];
     }
-    private void randomObject(JLabel o, int delay) {
-        int minX = 250;
-        int maxX = frameWidth - minX;
-        int minY = 100;
-        int maxY = frameHeight - minY;
-        backgroundLabel.add(o);
-        scheduler.scheduleAtFixedRate(() -> {
-            int positionX = rd.nextInt(maxX - minX + 1) + minX;
-            int positionY = rd.nextInt(maxY - minY + 1) + minY;
-            o.setLocation(positionX, positionY);
-            o.setVisible(true);
-            scheduler.schedule(() -> {
-                o.setVisible(false);
-            }, 700, TimeUnit.MILLISECONDS);
-        }, 0, delay, TimeUnit.MILLISECONDS);
-    }
-    private void randomFalling(int amount) {
+    private void startFalling(int amount) {
         int delay = 500;
-        HashMap <Integer, Object> ObjContainer = new HashMap<>();
-        ObjContainer.put(0,new Obj1());
-        ObjContainer.put(1,new Obj2());
-        ObjContainer.put(2,new Obj3());
-
         for(int i = 0; i < amount; i++) {
-            Object tmp = ObjContainer.get(rd.nextInt(ObjContainer.size()));
-            if(tmp instanceof Obj1) {
-                fallingObject(new Obj1(), delay);
-            }
-            if(tmp instanceof Obj2) {
-                fallingObject(new Obj2(), delay);
-            }
-            if(tmp instanceof Obj3) {
-                fallingObject(new Obj3(), delay);
-            }
-            delay += 300;
+            Object obj = getRandomObject();
+            fallingObject(obj, delay);
+            delay += 500;
         }
     }
     private void fallingObject(Object obj, int delay){
-        JLabel o;
-        int velo;
-        if (obj instanceof Obj1) {
-            o = Obj1.getJLabel();
-            velo = Obj1.getVelocity();
-        }
-        else if (obj instanceof Obj2) {
-            o = Obj2.getJLabel();
-            velo = Obj2.getVelocity();
-        }
-        else {
-            o = Obj3.getJLabel();
-            velo = Obj2.getVelocity();
-        } 
+        JLabel label = checkJLabel(obj);
+        int velo = checkVelocity(obj);
 
-        if (o.getMouseListeners().length == 0) {
-            o.addMouseListener(labelMouseListener);
+        if (label.getMouseListeners().length == 0) {
+            if (obj instanceof Frog) {
+                label.addMouseListener(new MouseAdapter() {
+                    public void mousePressed(MouseEvent e) {
+                        gameUpdate(label);
+                        playSound("src/sound/quack.wav");
+                    }
+                });
+            } else {
+                label.addMouseListener(new MouseAdapter() {
+                    public void mousePressed(MouseEvent e) {
+                        gameUpdate(label);
+                        playSound("src/sound/pop.wav");
+                    }
+                });
+            }
         }
-        final Icon icon = o.getIcon();
+        final Icon icon = label.getIcon();
         int minX = 300;
-        int maxX = frameWidth - minX - 70;
+        int maxX = FRAME_WIDTH - minX - 70;
         scheduler.schedule(() -> {
             int positionX = rd.nextInt(maxX - minX + 1) + minX;
             final int[] positionY = {0};
-            final int[] velocity = {velo};
-            final int[] acceleration = {1};
-            o.setVisible(true);
-            Timer timer = new Timer(30, new ActionListener() {
+            final double[] velocity = {velo};
+            final double[] acceleration = {0.1};
+            label.setVisible(true);
+            Timer timer = new Timer(10, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    backgroundLabel.add(o);
-                    positionY[0] += velocity[0] += acceleration[0];
-                    o.setLocation(positionX, positionY[0]);
+                    backgroundlabel.add(label);
+                    positionY[0] += velocity[0] += (acceleration[0]);
+                    label.setLocation(positionX, positionY[0]);
                     
-                    if (positionY[0] >= frameHeight) {
-                        o.setVisible(false);
-                        o.setIcon(icon);
-                        backgroundLabel.remove(o);
+                    if (positionY[0] >= FRAME_HEIGHT) {
+                        label.setVisible(false);
+                        label.setIcon(icon);
+                        backgroundlabel.remove(label);
                         ((Timer) e.getSource()).stop();
-                        fallingObject(obj, delay);
+                        fallingObject(getRandomObject(), delay);;
                     }
                 }
             });
             timer.start();
         }, delay, TimeUnit.MILLISECONDS);
+    }
+    private JLabel checkJLabel(Object obj) {
+        if (obj instanceof Pomelo) 
+            return Pomelo.getJLabel();
+        else if (obj instanceof Banana) 
+            return Banana.getJLabel();
+        else if (obj instanceof Peach)
+            return Peach.getJLabel();
+        else if (obj instanceof Tomato)
+            return Tomato.getJLabel();
+        else 
+            return Frog.getJLabel();
+    }
+    private int checkVelocity(Object obj) {
+        if (obj instanceof Pomelo) 
+            return Pomelo.getVelocity();
+        else if (obj instanceof Banana) 
+            return Banana.getVelocity();
+        else if (obj instanceof Peach)
+            return Peach.getVelocity();
+        else if (obj instanceof Tomato)
+            return Tomato.getVelocity();
+        else 
+            return Frog.getVelocity();
     }
 }
