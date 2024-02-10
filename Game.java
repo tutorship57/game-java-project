@@ -19,15 +19,18 @@ public class Game {
 
     private static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private static Random rd = new Random();
-    private static int bestScore;
-    private static Clip soundClip;
-    private static JLabel scoreBox;
-    private static JFrame frame;
-    private static Container container;
-    private static ImageIcon backgroundImage;
-    private static JLabel backgroundlabel;
-    private static int score = 0;
-    private static Set<Integer> pressedKeys = new HashSet<>();
+    private Clip soundClip;
+    private JLabel scoreBox;
+    private JFrame frame;
+    private Container container;
+    private ImageIcon switchbackgroundImage;
+    private ImageIcon StartImg;
+    private JLabel switchbackgroundJLabel;
+    private ImageIcon backgroundImage;
+    private JLabel backgroundlabel;
+    private int score = 0;
+    private JButton playButton;
+    private boolean isStart = false;
 
     MouseAdapter wrongLabelListener = new MouseAdapter() {
         public void mousePressed(MouseEvent e) {
@@ -35,6 +38,18 @@ public class Game {
             gameUpdate(pressedLabel);
             pressedLabel.setLocation(pressedLabel.getX(), FRAME_HEIGHT);
             playSound("src/sound/quack.wav");
+        }
+    };
+    MouseAdapter startGamelistener = new MouseAdapter() {
+        public void mouseClicked(MouseEvent e) {
+            if(playButton == (JButton)e.getSource()){
+                container.remove(switchbackgroundJLabel);
+                Components();
+                scoreBox();
+                container.repaint();
+                startFalling(10);
+            }
+            // JLabel pressedLabel = (JLabel)e.getSource();
         }
     };
     MouseAdapter labelMouseListener = new MouseAdapter() {
@@ -57,12 +72,12 @@ public class Game {
 
         Components();
         scoreBox();
-        startFalling(20);
+        startFalling(10);
 
         frame.setBounds(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
         frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLocationRelativeTo(null);
+        frame.setLocationRelativeTo(null);//let the background in the middle
         frame.setVisible(true);
     }
     private void scoreBox() {
@@ -92,6 +107,13 @@ public class Game {
             score += 1; 
         }
         scoreBox.setText("Score: " + score);
+        if(score >= 50) {
+            container.remove(backgroundlabel);
+            Components2(); 
+            container.repaint();
+            score = 0;
+            isStart = false;
+        }
         clickedLabel.setVisible(false);
 
     }
@@ -100,23 +122,21 @@ public class Game {
         backgroundlabel = new JLabel(backgroundImage);
         backgroundlabel.setLayout(null);
         container.add(backgroundlabel);
-        frame.addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-            }
+    }
+    private void Components2() {
+        switchbackgroundImage = new ImageIcon("src/img/background.jpg");
+        switchbackgroundJLabel = new JLabel(backgroundImage);
 
-            @Override
-            public void keyPressed(KeyEvent e) {
-                int code = e.getKeyCode();
-                pressedKeys.add(code);
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-                int code = e.getKeyCode();
-                pressedKeys.remove(code);
-            }
-        });
+        backgroundlabel.setLayout(null);
+        container.add(switchbackgroundJLabel);
+        StartImg = new ImageIcon("src/img/start.png");
+        playButton = new JButton();
+        playButton.setIcon(StartImg);
+        playButton.setBounds(FRAME_WIDTH / 2 - StartImg.getIconWidth() / 2, FRAME_HEIGHT / 2 - StartImg.getIconHeight() / 2, StartImg.getIconWidth(), StartImg.getIconHeight());
+        playButton.setBorderPainted(false);
+        playButton.setContentAreaFilled(false);
+        switchbackgroundJLabel.add(playButton);
+        playButton.addMouseListener(startGamelistener);
     }
     private void playSound(String soundFilePath) {
         try {
@@ -150,11 +170,12 @@ public class Game {
         return objects[rd.nextInt(objects.length)];
     }
     private void startFalling(int amount) {
+        isStart = true;
         int delay = 500;
         for(int i = 0; i < amount; i++) {
             Object obj = getRandomObject();
             fallingObject(obj, delay);
-            delay += 500;
+            delay += 300;
         }
     }
     private void fallingObject(Object obj, int delay){
@@ -173,22 +194,26 @@ public class Game {
         scheduler.schedule(() -> {
             int positionX = rd.nextInt(maxX - minX + 1) + minX;
             final int[] positionY = {0};
-            final double[] velocity = {velo};
+            final double[] velocity = {isStart ? velo : FRAME_HEIGHT};
             final double[] acceleration = {0.1};
             label.setVisible(true);
-            Timer timer = new Timer(1, new ActionListener() {
+            Timer timer = new Timer(10, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     backgroundlabel.add(label);
                     positionY[0] += velocity[0] += (acceleration[0]);
                     label.setLocation(positionX, positionY[0]);
-                    
+                    System.out.println("still");
                     if (positionY[0] >= FRAME_HEIGHT) {
                         label.setVisible(false);
                         label.setIcon(icon);
                         backgroundlabel.remove(label);
+                        
                         ((Timer) e.getSource()).stop();
-                        fallingObject(getRandomObject(), delay);;
+                        if (isStart) {
+                            fallingObject(getRandomObject(), delay);
+                        }
+                        else System.out.println("end");
                     }
                 }
             });
