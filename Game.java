@@ -24,10 +24,13 @@ public class Game {
     private static JLabel scoreBox;
     private static JFrame frame;
     private static Container container;
+    private static ImageIcon switchbackgroundImage;
+    private static JLabel switchbackgroundJLabel;
     private static ImageIcon backgroundImage;
     private static JLabel backgroundlabel;
     private static int score = 0;
     private static Set<Integer> pressedKeys = new HashSet<>();
+    private static JButton playButton;
 
     MouseAdapter wrongLabelListener = new MouseAdapter() {
         public void mousePressed(MouseEvent e) {
@@ -35,6 +38,17 @@ public class Game {
             gameUpdate(pressedLabel);
             pressedLabel.setLocation(pressedLabel.getX(), FRAME_HEIGHT);
             playSound("src/sound/quack.wav");
+        }
+    };
+    MouseAdapter startGamelistener = new MouseAdapter() {
+        public void mouseClicked(MouseEvent e) {
+            if(playButton == (JButton)e.getSource()){
+                container.remove(switchbackgroundJLabel);
+                Components();
+                scoreBox();
+                container.repaint();
+            }
+            // JLabel pressedLabel = (JLabel)e.getSource();
         }
     };
     MouseAdapter labelMouseListener = new MouseAdapter() {
@@ -47,7 +61,7 @@ public class Game {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                new Game();
+                Game a = new Game();
             }
         });
     }
@@ -62,7 +76,7 @@ public class Game {
         frame.setBounds(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
         frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLocationRelativeTo(null);
+        frame.setLocationRelativeTo(null);//let the background in the middle
         frame.setVisible(true);
     }
     private void scoreBox() {
@@ -92,6 +106,12 @@ public class Game {
             score += 1; 
         }
         scoreBox.setText("Score: " + score);
+        if(score >= 5){
+            container.remove(backgroundlabel);
+            Components2(); 
+            container.repaint();
+            score =0;
+        }
         clickedLabel.setVisible(false);
 
     }
@@ -100,23 +120,16 @@ public class Game {
         backgroundlabel = new JLabel(backgroundImage);
         backgroundlabel.setLayout(null);
         container.add(backgroundlabel);
-        frame.addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                int code = e.getKeyCode();
-                pressedKeys.add(code);
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-                int code = e.getKeyCode();
-                pressedKeys.remove(code);
-            }
-        });
+    }
+    private void Components2() {
+        switchbackgroundImage= new ImageIcon("src/img/background.jpg");
+        switchbackgroundJLabel = new JLabel(backgroundImage);
+        backgroundlabel.setLayout(null);
+        container.add(switchbackgroundJLabel);
+        playButton = new JButton("Start");
+        playButton.setBounds(FRAME_WIDTH/2-250, FRAME_HEIGHT/2-50, 500, 100);
+        switchbackgroundJLabel.add(playButton);
+        playButton.addMouseListener(startGamelistener);
     }
     private void playSound(String soundFilePath) {
         try {
@@ -176,19 +189,20 @@ public class Game {
             final double[] velocity = {velo};
             final double[] acceleration = {0.1};
             label.setVisible(true);
-            Timer timer = new Timer(1, new ActionListener() {
+            Timer timer = new Timer(10, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     backgroundlabel.add(label);
                     positionY[0] += velocity[0] += (acceleration[0]);
                     label.setLocation(positionX, positionY[0]);
-                    
+                    System.out.println("still");
                     if (positionY[0] >= FRAME_HEIGHT) {
                         label.setVisible(false);
                         label.setIcon(icon);
                         backgroundlabel.remove(label);
+                        
                         ((Timer) e.getSource()).stop();
-                        fallingObject(getRandomObject(), delay);;
+                        fallingObject(getRandomObject(), delay);
                     }
                 }
             });
