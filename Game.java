@@ -19,18 +19,18 @@ public class Game {
 
     private static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private static Random rd = new Random();
-    private static int bestScore;
-    private static Clip soundClip;
-    private static JLabel scoreBox;
-    private static JFrame frame;
-    private static Container container;
-    private static ImageIcon switchbackgroundImage;
-    private static JLabel switchbackgroundJLabel;
-    private static ImageIcon backgroundImage;
-    private static JLabel backgroundlabel;
-    private static int score = 0;
-    private static Set<Integer> pressedKeys = new HashSet<>();
-    private static JButton playButton;
+    private Clip soundClip;
+    private JLabel scoreBox;
+    private JFrame frame;
+    private Container container;
+    private ImageIcon switchbackgroundImage;
+    private ImageIcon StartImg;
+    private JLabel switchbackgroundJLabel;
+    private ImageIcon backgroundImage;
+    private JLabel backgroundlabel;
+    private int score = 0;
+    private JButton playButton;
+    private boolean isStart = false;
 
     MouseAdapter wrongLabelListener = new MouseAdapter() {
         public void mousePressed(MouseEvent e) {
@@ -47,6 +47,7 @@ public class Game {
                 Components();
                 scoreBox();
                 container.repaint();
+                startFalling(10);
             }
             // JLabel pressedLabel = (JLabel)e.getSource();
         }
@@ -61,7 +62,7 @@ public class Game {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                Game a = new Game();
+                new Game();
             }
         });
     }
@@ -71,7 +72,7 @@ public class Game {
 
         Components();
         scoreBox();
-        startFalling(20);
+        startFalling(10);
 
         frame.setBounds(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
         frame.setResizable(false);
@@ -106,11 +107,12 @@ public class Game {
             score += 1; 
         }
         scoreBox.setText("Score: " + score);
-        if(score >= 5){
+        if(score >= 50) {
             container.remove(backgroundlabel);
             Components2(); 
             container.repaint();
-            score =0;
+            score = 0;
+            isStart = false;
         }
         clickedLabel.setVisible(false);
 
@@ -122,12 +124,17 @@ public class Game {
         container.add(backgroundlabel);
     }
     private void Components2() {
-        switchbackgroundImage= new ImageIcon("src/img/background.jpg");
+        switchbackgroundImage = new ImageIcon("src/img/background.jpg");
         switchbackgroundJLabel = new JLabel(backgroundImage);
+
         backgroundlabel.setLayout(null);
         container.add(switchbackgroundJLabel);
-        playButton = new JButton("Start");
-        playButton.setBounds(FRAME_WIDTH/2-250, FRAME_HEIGHT/2-50, 500, 100);
+        StartImg = new ImageIcon("src/img/start.png");
+        playButton = new JButton();
+        playButton.setIcon(StartImg);
+        playButton.setBounds(FRAME_WIDTH / 2 - StartImg.getIconWidth() / 2, FRAME_HEIGHT / 2 - StartImg.getIconHeight() / 2, StartImg.getIconWidth(), StartImg.getIconHeight());
+        playButton.setBorderPainted(false);
+        playButton.setContentAreaFilled(false);
         switchbackgroundJLabel.add(playButton);
         playButton.addMouseListener(startGamelistener);
     }
@@ -163,11 +170,12 @@ public class Game {
         return objects[rd.nextInt(objects.length)];
     }
     private void startFalling(int amount) {
+        isStart = true;
         int delay = 500;
         for(int i = 0; i < amount; i++) {
             Object obj = getRandomObject();
             fallingObject(obj, delay);
-            delay += 500;
+            delay += 300;
         }
     }
     private void fallingObject(Object obj, int delay){
@@ -186,7 +194,7 @@ public class Game {
         scheduler.schedule(() -> {
             int positionX = rd.nextInt(maxX - minX + 1) + minX;
             final int[] positionY = {0};
-            final double[] velocity = {velo};
+            final double[] velocity = {isStart ? velo : FRAME_HEIGHT};
             final double[] acceleration = {0.1};
             label.setVisible(true);
             Timer timer = new Timer(10, new ActionListener() {
@@ -202,7 +210,10 @@ public class Game {
                         backgroundlabel.remove(label);
                         
                         ((Timer) e.getSource()).stop();
-                        fallingObject(getRandomObject(), delay);
+                        if (isStart) {
+                            fallingObject(getRandomObject(), delay);
+                        }
+                        else System.out.println("end");
                     }
                 }
             });
