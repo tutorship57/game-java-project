@@ -9,13 +9,12 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineListener;
 
 public class Game {
     private static final int FRAME_WIDTH = 1080;
-    private static final int FRAME_HEIGHT = 720;
+    private static final int FRAME_HEIGHT = 755;
 
     private static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private static Random rd = new Random();
@@ -71,8 +70,9 @@ public class Game {
         container = frame.getContentPane();
 
         Components();
+        startFalling(7);
         scoreBox();
-        startFalling(10);
+
 
         frame.setBounds(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
         frame.setResizable(false);
@@ -118,13 +118,13 @@ public class Game {
 
     }
     private void Components() {
-        backgroundImage = new ImageIcon("src/img/garden.jpg");
+        backgroundImage = new ImageIcon("src/img/background.png");
         backgroundlabel = new JLabel(backgroundImage);
         backgroundlabel.setLayout(null);
         container.add(backgroundlabel);
     }
     private void Components2() {
-        switchbackgroundImage = new ImageIcon("src/img/background.jpg");
+        switchbackgroundImage = new ImageIcon("src/img/background.png");
         switchbackgroundJLabel = new JLabel(backgroundImage);
 
         backgroundlabel.setLayout(null);
@@ -189,15 +189,15 @@ public class Game {
                 label.addMouseListener(labelMouseListener);
         }
         final Icon icon = label.getIcon();
-        int minX = 300;
-        int maxX = FRAME_WIDTH - minX - 70;
+        int minX = 340;
+        int maxX = FRAME_WIDTH - minX - 110;
         scheduler.schedule(() -> {
             int positionX = rd.nextInt(maxX - minX + 1) + minX;
             final int[] positionY = {0};
             final double[] velocity = {isStart ? velo : FRAME_HEIGHT};
-            final double[] acceleration = {0.1};
+            final double[] acceleration = {0.5};
             label.setVisible(true);
-            Timer timer = new Timer(10, new ActionListener() {
+            Timer timer = new Timer(17, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     backgroundlabel.add(label);
@@ -208,7 +208,7 @@ public class Game {
                         label.setVisible(false);
                         label.setIcon(icon);
                         backgroundlabel.remove(label);
-                        
+                        // backgroundlabel.repaint();
                         ((Timer) e.getSource()).stop();
                         if (isStart) {
                             fallingObject(getRandomObject(), delay);
