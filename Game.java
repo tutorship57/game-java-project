@@ -32,6 +32,8 @@ public class Game {
     private boolean isStart = false;
     private JLabel timeBox;
     private int timeScedule =60;
+    private Timer timeCounting ;
+    private int MaxScore;
 
     MouseAdapter wrongLabelListener = new MouseAdapter() {
         public void mousePressed(MouseEvent e) {
@@ -41,14 +43,21 @@ public class Game {
             playSound("src/sound/quack.wav");
         }
     };
-    MouseAdapter startGamelistener = new MouseAdapter() {
+    MouseAdapter  startGamelistener = new MouseAdapter() {
         public void mouseClicked(MouseEvent e) {
+                timeCounting = new Timer(1000,new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    decreaseTimeCount();
+                    
+                }
+            });
             if(playButton == (JButton)e.getSource()){
                 container.remove(switchbackgroundJLabel);
                 Components();
                 scoreBox();
                 container.repaint();
                 startFalling(7);
+                timeCounting.start();
             }
             // JLabel pressedLabel = (JLabel)e.getSource();
         }
@@ -86,6 +95,31 @@ public class Game {
         frame.setLocationRelativeTo(null);//let the background in the middle
         frame.setVisible(true);
     }
+    private void decreaseTimeCount(){
+        timeScedule -=1;
+        timeBox.setText(""+timeScedule);
+        System.out.println(timeScedule);
+        if(timeScedule==0){
+            timeCounting.stop();
+            container.remove(backgroundlabel);
+            Components2(); 
+            MaxScore = score;
+            String sacore = "Score";
+            JLabel maxScoreLabel = new JLabel(sacore);
+            JLabel showScore = new JLabel(""+MaxScore);
+            Font fontMax = new Font("Arial", Font.BOLD, 60);
+            maxScoreLabel.setBounds((FRAME_WIDTH /2)-((sacore.length() *30)/2), FRAME_HEIGHT / 10 ,500,200);
+            maxScoreLabel.setFont(fontMax);
+            showScore.setBounds((FRAME_WIDTH /2)-30, FRAME_HEIGHT / 4 ,500,150);
+            showScore.setFont(fontMax);
+            switchbackgroundJLabel.add(showScore);
+            switchbackgroundJLabel.add(maxScoreLabel);
+            container.repaint();
+            score = 0;
+            isStart = false;
+            timeScedule = 60;
+        }
+    }
     private void scoreBox() {
         Color textColor = new Color(255, 0, 0); // ตั้งค่าสี (RGB)
         Font font = new Font("Arial", Font.BOLD, 20);
@@ -121,13 +155,6 @@ public class Game {
             score += 1; 
         }
         scoreBox.setText("Score: " + score);
-        if(score >= 50) {
-            container.remove(backgroundlabel);
-            Components2(); 
-            container.repaint();
-            score = 0;
-            isStart = false;
-        }
         clickedLabel.setVisible(false);
 
     }
@@ -217,7 +244,7 @@ public class Game {
                     backgroundlabel.add(label);
                     positionY[0] += velocity[0] += (acceleration[0]);
                     label.setLocation(positionX, positionY[0]);
-                    System.out.println("still");
+                    // System.out.println("still");
                     if (positionY[0] >= FRAME_HEIGHT) {
                         label.setVisible(false);
                         label.setIcon(icon);
