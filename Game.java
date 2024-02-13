@@ -30,6 +30,8 @@ public class Game {
     private int score = 0;
     private JButton playButton;
     private boolean isStart = false;
+    private JLabel timeBox;
+    private int timeScedule =60;
 
     MouseAdapter wrongLabelListener = new MouseAdapter() {
         public void mousePressed(MouseEvent e) {
@@ -46,7 +48,7 @@ public class Game {
                 Components();
                 scoreBox();
                 container.repaint();
-                startFalling(10);
+                startFalling(7);
             }
             // JLabel pressedLabel = (JLabel)e.getSource();
         }
@@ -69,9 +71,13 @@ public class Game {
         frame = new JFrame("My Tutor Game");
         container = frame.getContentPane();
 
-        Components();
-        startFalling(7);
-        scoreBox();
+        backgroundImage = new ImageIcon("src/img/background.png");
+        backgroundlabel = new JLabel(backgroundImage);
+        backgroundlabel.setLayout(null);
+
+        Components2();
+        // startFalling(7);
+        // scoreBox();
 
 
         frame.setBounds(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
@@ -89,6 +95,14 @@ public class Game {
         scoreBox.setFont(font);
         scoreBox.setForeground(textColor);
         scoreBox.setText("Score: " + score);
+        Color textColor2 = new Color(255, 0, 0); // ตั้งค่าสี (RGB)
+        Font font2 = new Font("Arial", Font.BOLD, 60);
+        timeBox = new JLabel();
+        timeBox.setBounds((FRAME_WIDTH/2)-30,FRAME_HEIGHT/16, 150, 100);
+        backgroundlabel.add(timeBox);
+        timeBox.setFont(font2);
+        timeBox.setForeground(textColor2);
+        timeBox.setText(""+timeScedule);
     }
     private void gameUpdate(JLabel clickedLabel) {
         if (((ImageIcon)(clickedLabel.getIcon())).getImage().equals(Pomelo.getImage())) {
