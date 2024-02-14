@@ -104,13 +104,14 @@ public class Game {
             container.remove(backgroundlabel);
             Components2(); 
             MaxScore = score;
-            String sacore = "Score";
-            JLabel maxScoreLabel = new JLabel(sacore);
-            JLabel showScore = new JLabel(""+MaxScore);
-            Font fontMax = new Font("Arial", Font.BOLD, 60);
-            maxScoreLabel.setBounds((FRAME_WIDTH /2)-((sacore.length() *30)/2), FRAME_HEIGHT / 10 ,500,200);
+            String socoreLabel = "Score";
+            JLabel maxScoreLabel = new JLabel(socoreLabel);
+            String maxCount = ""+MaxScore;
+            JLabel showScore = new JLabel(maxCount);
+            Font fontMax = new Font("Comic Sans MS", Font.BOLD, 60);
+            maxScoreLabel.setBounds((FRAME_WIDTH /2)-((socoreLabel.length() *30)/2), FRAME_HEIGHT / 10 ,500,200);
             maxScoreLabel.setFont(fontMax);
-            showScore.setBounds((FRAME_WIDTH /2)-30, FRAME_HEIGHT / 4 ,500,150);
+            showScore.setBounds((FRAME_WIDTH /2)-(maxCount.length()*30)/2, FRAME_HEIGHT / 4 ,500,150);
             showScore.setFont(fontMax);
             switchbackgroundJLabel.add(showScore);
             switchbackgroundJLabel.add(maxScoreLabel);
@@ -121,18 +122,18 @@ public class Game {
         }
     }
     private void scoreBox() {
-        Color textColor = new Color(255, 0, 0); // ตั้งค่าสี (RGB)
-        Font font = new Font("Arial", Font.BOLD, 20);
+        Color textColor = new Color(255, 255, 255); // ตั้งค่าสี (RGB)
+        Font font = new Font("Comic Sans MS", Font.BOLD, 25);
         scoreBox = new JLabel();
-        scoreBox.setBounds(20, 20, 150, 100);
+        scoreBox.setBounds(60, 20, 150, 100);
         backgroundlabel.add(scoreBox);
         scoreBox.setFont(font);
         scoreBox.setForeground(textColor);
         scoreBox.setText("Score: " + score);
         Color textColor2 = new Color(255, 0, 0); // ตั้งค่าสี (RGB)
-        Font font2 = new Font("Arial", Font.BOLD, 60);
+        Font font2 = new Font("Comic Sans MS", Font.BOLD, 60);
         timeBox = new JLabel();
-        timeBox.setBounds((FRAME_WIDTH/2)-30,FRAME_HEIGHT/16, 150, 100);
+        timeBox.setBounds((FRAME_WIDTH/2)-30,FRAME_HEIGHT/20, 150, 100);
         backgroundlabel.add(timeBox);
         timeBox.setFont(font2);
         timeBox.setForeground(textColor2);
