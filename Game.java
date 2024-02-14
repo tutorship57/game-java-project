@@ -59,7 +59,6 @@ public class Game {
                 startFalling(7);
                 timeCounting.start();
             }
-            // JLabel pressedLabel = (JLabel)e.getSource();
         }
     };
     MouseAdapter labelMouseListener = new MouseAdapter() {
@@ -104,7 +103,18 @@ public class Game {
             container.remove(backgroundlabel);
             Components2(); 
             MaxScore = score;
-            String socoreLabel = "Score";
+            showScoreMetod();
+            container.repaint();
+            score = 0;
+            isStart = false;
+            timeScedule = 60;
+        }
+        if(timeScedule<6){
+            timeBox.setForeground(new Color(255, 0, 0));
+        }
+    }
+    private void showScoreMetod(){
+        String socoreLabel = "Score";
             JLabel maxScoreLabel = new JLabel(socoreLabel);
             String maxCount = ""+MaxScore;
             JLabel showScore = new JLabel(maxCount);
@@ -115,11 +125,6 @@ public class Game {
             showScore.setFont(fontMax);
             switchbackgroundJLabel.add(showScore);
             switchbackgroundJLabel.add(maxScoreLabel);
-            container.repaint();
-            score = 0;
-            isStart = false;
-            timeScedule = 60;
-        }
     }
     private void scoreBox() {
         Color textColor = new Color(255, 255, 255); // ตั้งค่าสี (RGB)
@@ -130,7 +135,7 @@ public class Game {
         scoreBox.setFont(font);
         scoreBox.setForeground(textColor);
         scoreBox.setText("Score: " + score);
-        Color textColor2 = new Color(255, 0, 0); // ตั้งค่าสี (RGB)
+        Color textColor2 = new Color(0, 0, 0); // ตั้งค่าสี (RGB)
         Font font2 = new Font("Comic Sans MS", Font.BOLD, 60);
         timeBox = new JLabel();
         timeBox.setBounds((FRAME_WIDTH/2)-30,FRAME_HEIGHT/20, 150, 100);
