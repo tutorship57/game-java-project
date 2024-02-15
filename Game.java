@@ -11,11 +11,13 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineEvent;   
 import javax.sound.sampled.LineListener;
+import java.io.File;
+import java.io.IOException;
+
 
 public class Game {
     private static final int FRAME_WIDTH = 1080;
     private static final int FRAME_HEIGHT = 755;
-
     private static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private static Random rd = new Random();
     private Clip soundClip;
@@ -37,7 +39,7 @@ public class Game {
     private int score = 0;
     private boolean isStart = false;
     private String [] gameStartCount = {"  3","  2","  1"," GO!"};
-    private int ind = 0 ;
+    private int ind = 0;
 
     MouseAdapter wrongLabelListener = new MouseAdapter() {
         public void mousePressed(MouseEvent e) {
@@ -104,11 +106,11 @@ public class Game {
         frame.setLocationRelativeTo(null);//let the background in the middle
         frame.setVisible(true);
     }
-    private void decreaseTimeCount(){
-        timeScedule -=1;
-        timeBox.setText(""+timeScedule);
+    private void decreaseTimeCount() {
+        timeScedule -= 1;
+        timeBox.setText("" + timeScedule);
         System.out.println(timeScedule);
-        if(timeScedule==0){
+        if(timeScedule == 0) {
             timeCounting.stop();
             container.remove(backgroundlabel);
             Components2(); 
@@ -119,43 +121,43 @@ public class Game {
             isStart = false;
             timeScedule = 60;
         }
-        if(timeScedule<6){
+        if(timeScedule < 6){
             timeBox.setForeground(new Color(255, 0, 0));
         }
     }
     private void letsStart(){
         ind++;
-        if(ind == gameStartCount.length){
+        if(ind == gameStartCount.length) {
             gameStartCounting.stop();
             backgroundlabel.remove(countStart);
             container.repaint();
             
             startFalling(7);
             timeCounting.start();
-            ind=0;
-        }else{
+            ind = 0;
+        }else {
             countStart.setText(gameStartCount[ind]);
         }
     }
-    private void textStartCount(){
+    private void textStartCount() {
         countStart = new JLabel(gameStartCount[ind]);
         countStart.setBounds(FRAME_WIDTH/2-(30*gameStartCount[3].length()),(FRAME_HEIGHT/2)-200,300,300);
         countStart.setForeground(new Color(0, 0, 0));
         countStart.setFont(new Font("Comic Sans MS", Font.BOLD, 100));
-        backgroundlabel.add(countStart);        
+        backgroundlabel.add(countStart, BorderLayout.CENTER);
     }
-    private void showScoreMetod(){
+    private void showScoreMetod() {
         String socoreLabel = "Score";
-            JLabel maxScoreLabel = new JLabel(socoreLabel);
-            String maxCount = ""+MaxScore;
-            JLabel showScore = new JLabel(maxCount);
-            Font fontMax = new Font("Comic Sans MS", Font.BOLD, 60);
-            maxScoreLabel.setBounds((FRAME_WIDTH /2)-((socoreLabel.length() *30)/2), FRAME_HEIGHT / 10 ,500,200);
-            maxScoreLabel.setFont(fontMax);
-            showScore.setBounds((FRAME_WIDTH /2)-(maxCount.length()*30)/2, FRAME_HEIGHT / 4 ,500,150);
-            showScore.setFont(fontMax);
-            switchbackgroundJLabel.add(showScore);
-            switchbackgroundJLabel.add(maxScoreLabel);
+        JLabel maxScoreLabel = new JLabel(socoreLabel);
+        String maxCount = "" + MaxScore;
+        JLabel showScore = new JLabel(maxCount);
+        Font fontMax = new Font("Comic Sans MS", Font.BOLD, 60);
+        maxScoreLabel.setBounds((FRAME_WIDTH / 2) - ((socoreLabel.length() * 30 ) / 2) - 10, FRAME_HEIGHT / 10 ,500, 200);
+        maxScoreLabel.setFont(fontMax);
+        showScore.setBounds(((FRAME_WIDTH / 2) - (maxCount.length() * 30 ) / 2) - 10, FRAME_HEIGHT / 4 ,500, 150);
+        showScore.setFont(fontMax);
+        switchbackgroundJLabel.add(showScore, BorderLayout.CENTER);
+        switchbackgroundJLabel.add(maxScoreLabel, BorderLayout.CENTER);
     }
     private void scoreBox() {
         Color textColor = new Color(255, 255, 255); // ตั้งค่าสี (RGB)
@@ -166,14 +168,15 @@ public class Game {
         scoreBox.setFont(font);
         scoreBox.setForeground(textColor);
         scoreBox.setText("Score: " + score);
+
         Color textColor2 = new Color(0, 0, 0); // ตั้งค่าสี (RGB)
         Font font2 = new Font("Comic Sans MS", Font.BOLD, 60);
         timeBox = new JLabel();
-        timeBox.setBounds((FRAME_WIDTH/2)-30,FRAME_HEIGHT/20, 150, 100);
-        backgroundlabel.add(timeBox);
+        timeBox.setBounds((FRAME_WIDTH / 2) - 30, FRAME_HEIGHT / 20, 150, 100);
+        backgroundlabel.add(timeBox, BorderLayout.CENTER);
         timeBox.setFont(font2);
         timeBox.setForeground(textColor2);
-        timeBox.setText(""+timeScedule);
+        timeBox.setText("" + timeScedule);
     }
     private void gameUpdate(JLabel clickedLabel) {
         if (((ImageIcon)(clickedLabel.getIcon())).getImage().equals(Pomelo.getImage())) {
