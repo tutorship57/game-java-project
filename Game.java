@@ -20,6 +20,7 @@ public class Game {
     private static final int FRAME_HEIGHT = 755;
     private static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private static Random rd = new Random();
+    private ImageIcon gameIcon;
     private Clip soundClip;
     private JFrame frame;
     private Container container;
@@ -88,7 +89,10 @@ public class Game {
         });
     }
     public Game() {
-        frame = new JFrame("My Tutor Game");
+        frame = new JFrame("Fruit NOT Frog.");
+
+        gameIcon = new ImageIcon("src/img/icon.png");
+        frame.setIconImage(gameIcon.getImage());
         container = frame.getContentPane();
 
         backgroundImage = new ImageIcon("src/img/background.png");
