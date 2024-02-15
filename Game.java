@@ -9,7 +9,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.LineEvent;
+import javax.sound.sampled.LineEvent;   
 import javax.sound.sampled.LineListener;
 
 public class Game {
@@ -19,21 +19,25 @@ public class Game {
     private static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private static Random rd = new Random();
     private Clip soundClip;
-    private JLabel scoreBox;
     private JFrame frame;
     private Container container;
     private ImageIcon switchbackgroundImage;
     private ImageIcon StartImg;
-    private JLabel switchbackgroundJLabel;
     private ImageIcon backgroundImage;
+    private JLabel switchbackgroundJLabel;
+    private JLabel scoreBox;
     private JLabel backgroundlabel;
-    private int score = 0;
-    private JButton playButton;
-    private boolean isStart = false;
     private JLabel timeBox;
-    private int timeScedule =60;
+    private JLabel countStart ;
+    private JButton playButton;
     private Timer timeCounting ;
+    private Timer gameStartCounting ;
     private int MaxScore;
+    private int timeScedule =60;
+    private int score = 0;
+    private boolean isStart = false;
+    private String [] gameStartCount = {"  3","  2","  1"," GO!"};
+    private int ind = 0 ;
 
     MouseAdapter wrongLabelListener = new MouseAdapter() {
         public void mousePressed(MouseEvent e) {
@@ -45,22 +49,28 @@ public class Game {
     };
     MouseAdapter  startGamelistener = new MouseAdapter() {
         public void mouseClicked(MouseEvent e) {
-                timeCounting = new Timer(1000,new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    decreaseTimeCount();
-                    
-                }
-            });
+            timeCounting = new Timer(1000,new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                decreaseTimeCount();
+                
+            }
+        });
+            gameStartCounting =  new Timer(1000, new ActionListener() {
+            public void actionPerformed(ActionEvent e ){
+                letsStart();
+            } 
+        });
             if(playButton == (JButton)e.getSource()){
                 container.remove(switchbackgroundJLabel);
                 Components();
                 scoreBox();
+                textStartCount();
+                gameStartCounting.start();
                 container.repaint();
-                startFalling(7);
-                timeCounting.start();
             }
         }
     };
+    
     MouseAdapter labelMouseListener = new MouseAdapter() {
         public void mousePressed(MouseEvent e) {
             JLabel pressedLabel = (JLabel)e.getSource();
@@ -112,6 +122,27 @@ public class Game {
         if(timeScedule<6){
             timeBox.setForeground(new Color(255, 0, 0));
         }
+    }
+    private void letsStart(){
+        ind++;
+        if(ind == gameStartCount.length){
+            gameStartCounting.stop();
+            backgroundlabel.remove(countStart);
+            container.repaint();
+            
+            startFalling(7);
+            timeCounting.start();
+            ind=0;
+        }else{
+            countStart.setText(gameStartCount[ind]);
+        }
+    }
+    private void textStartCount(){
+        countStart = new JLabel(gameStartCount[ind]);
+        countStart.setBounds(FRAME_WIDTH/2-(30*gameStartCount[3].length()),(FRAME_HEIGHT/2)-200,300,300);
+        countStart.setForeground(new Color(0, 0, 0));
+        countStart.setFont(new Font("Comic Sans MS", Font.BOLD, 100));
+        backgroundlabel.add(countStart);        
     }
     private void showScoreMetod(){
         String socoreLabel = "Score";
