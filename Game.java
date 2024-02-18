@@ -121,7 +121,6 @@ public class Game {
     private void decreaseTimeCount() {
         timeScedule -= 1;
         timeBox.setText("" + timeScedule);
-        System.out.println(timeScedule);
         if(timeScedule <= 0) {
             timeCounting.stop();
             container.remove(backgroundlabel);
@@ -309,7 +308,7 @@ public class Game {
             int positionX = rd.nextInt(maxX - minX + 1) + minX;
             final int[] positionY = {0};
             final double[] velocity = {isStart ? velo : FRAME_HEIGHT};
-            final double[] acceleration = {1};
+            final double[] acceleration = {0.1};
             label.setVisible(true);
             Timer timer = new Timer(17, new ActionListener() {
                 @Override
