@@ -28,17 +28,19 @@ public class Game {
     private ImageIcon StartImg;
     private ImageIcon exitImg;
     private ImageIcon backgroundImage;
+    private ImageIcon backImg;
     private JLabel switchbackgroundJLabel;
     private JLabel scoreBox;
     private JLabel backgroundlabel;
     private JLabel timeBox;
-    private JLabel countStart ;
+    private JLabel countStart;
+    private JButton backButton;
     private JButton playButton;
     private JButton exitButton;
     private Timer timeCounting ;
     private Timer gameStartCounting ;
     private int MaxScore;
-    private int timeScedule =60;
+    private int timeScedule = 60;
     private int score = 0;
     private boolean isStart = false;
     private String [] gameStartCount = {"  3","  2","  1"," GO!"};
@@ -57,7 +59,6 @@ public class Game {
             timeCounting = new Timer(1000,new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 decreaseTimeCount();
-                
             }
         });
             gameStartCounting =  new Timer(1000, new ActionListener() {
@@ -70,12 +71,13 @@ public class Game {
                 Components();
                 scoreBox();
                 textStartCount();
+                BackButton();
                 gameStartCounting.start();
                 container.repaint();
             }   
         }
     };
-    MouseAdapter  exitGamelistener = new MouseAdapter() {
+    MouseAdapter exitGamelistener = new MouseAdapter() {
         public void mouseClicked(MouseEvent e) {
             if(exitButton == (JButton)e.getSource()){
                 System.exit(0);
@@ -109,9 +111,6 @@ public class Game {
         backgroundlabel.setLayout(null);
 
         Components2();
-        // startFalling(7);
-        // scoreBox();
-
 
         frame.setBounds(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
         frame.setResizable(false);
@@ -123,10 +122,10 @@ public class Game {
         timeScedule -= 1;
         timeBox.setText("" + timeScedule);
         System.out.println(timeScedule);
-        if(timeScedule == 0) {
+        if(timeScedule <= 0) {
             timeCounting.stop();
             container.remove(backgroundlabel);
-            Components2(); 
+            Components2();
             MaxScore = score;
             showScoreMetod();
             container.repaint();
@@ -152,9 +151,23 @@ public class Game {
             countStart.setText(gameStartCount[ind]);
         }
     }
+    private void BackButton() {
+        backImg = new ImageIcon("src/img/undo.png");
+        backButton = new JButton();
+        backButton.setIcon(backImg);
+        backButton.setBounds(925, 50,56,56);
+        backgroundlabel.add(backButton);
+        backButton.setBorderPainted(false);
+        backButton.setContentAreaFilled(false);
+        backButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                timeScedule = 0;
+            }
+        });
+    }
     private void textStartCount() {
         countStart = new JLabel(gameStartCount[ind]);
-        countStart.setBounds(FRAME_WIDTH/2-(30*gameStartCount[3].length()),(FRAME_HEIGHT/2)-200,300,300);
+        countStart.setBounds(FRAME_WIDTH/2 - (30*gameStartCount[3].length()),(FRAME_HEIGHT/2)-200,300,300);
         countStart.setForeground(new Color(0, 0, 0));
         countStart.setFont(new Font("Comic Sans MS", Font.BOLD, 100));
         backgroundlabel.add(countStart, BorderLayout.CENTER);
@@ -185,7 +198,7 @@ public class Game {
         Color textColor2 = new Color(0, 0, 0); // ตั้งค่าสี (RGB)
         Font font2 = new Font("Comic Sans MS", Font.BOLD, 60);
         timeBox = new JLabel();
-        timeBox.setBounds((FRAME_WIDTH / 2) - 30, FRAME_HEIGHT / 20, 150, 100);
+        timeBox.setBounds((FRAME_WIDTH / 2) - 35, FRAME_HEIGHT / 20, 150, 100);
         backgroundlabel.add(timeBox, BorderLayout.CENTER);
         timeBox.setFont(font2);
         timeBox.setForeground(textColor2);
@@ -205,7 +218,7 @@ public class Game {
             score += 1; 
         }
         else if (((ImageIcon)(clickedLabel.getIcon())).getImage().equals(Peach.getImage())) {
-            score += 1; 
+            score += 1;
         }
         scoreBox.setText("Score: " + score);
         clickedLabel.setVisible(false);
@@ -239,6 +252,7 @@ public class Game {
         playButton.addMouseListener(startGamelistener);
         switchbackgroundJLabel.add(exitButton);
         exitButton.addMouseListener(exitGamelistener);
+        
     }
     private void playSound(String soundFilePath) {
         try {
@@ -283,21 +297,19 @@ public class Game {
     private void fallingObject(Object obj, int delay){
         JLabel label = checkJLabel(obj);
         int velo = checkVelocity(obj);
-
-        if (label.getMouseListeners().length == 0) {
+        // if (label.getMouseListeners().length == 0) {
             if (obj instanceof Frog)
                 label.addMouseListener(wrongLabelListener);
             else
                 label.addMouseListener(labelMouseListener);
-        }
-
+        // }
         int minX = 340;
         int maxX = FRAME_WIDTH - minX - 110;
         scheduler.schedule(() -> {
             int positionX = rd.nextInt(maxX - minX + 1) + minX;
             final int[] positionY = {0};
             final double[] velocity = {isStart ? velo : FRAME_HEIGHT};
-            final double[] acceleration = {0.5};
+            final double[] acceleration = {1};
             label.setVisible(true);
             Timer timer = new Timer(17, new ActionListener() {
                 @Override
@@ -305,17 +317,12 @@ public class Game {
                     backgroundlabel.add(label);
                     positionY[0] += velocity[0] += (acceleration[0]);
                     label.setLocation(positionX, positionY[0]);
-                    // System.out.println("still");
                     if (positionY[0] >= FRAME_HEIGHT) {
                         label.setVisible(false);
-                        
                         backgroundlabel.remove(label);
-                        // backgroundlabel.repaint();
                         ((Timer) e.getSource()).stop();
-                        if (isStart) {
+                        if (isStart)
                             fallingObject(getRandomObject(), delay);
-                        }
-                        else System.out.println("end");
                     }
                 }
             });
