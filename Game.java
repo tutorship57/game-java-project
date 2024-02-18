@@ -26,6 +26,7 @@ public class Game {
     private Container container;
     private ImageIcon switchbackgroundImage;
     private ImageIcon StartImg;
+    private ImageIcon exitImg;
     private ImageIcon backgroundImage;
     private JLabel switchbackgroundJLabel;
     private JLabel scoreBox;
@@ -33,6 +34,7 @@ public class Game {
     private JLabel timeBox;
     private JLabel countStart ;
     private JButton playButton;
+    private JButton exitButton;
     private Timer timeCounting ;
     private Timer gameStartCounting ;
     private int MaxScore;
@@ -70,6 +72,13 @@ public class Game {
                 textStartCount();
                 gameStartCounting.start();
                 container.repaint();
+            }   
+        }
+    };
+    MouseAdapter  exitGamelistener = new MouseAdapter() {
+        public void mouseClicked(MouseEvent e) {
+            if(exitButton == (JButton)e.getSource()){
+                System.exit(0);
             }
         }
     };
@@ -220,8 +229,16 @@ public class Game {
         playButton.setBounds(FRAME_WIDTH / 2 - StartImg.getIconWidth() / 2, FRAME_HEIGHT / 2 - StartImg.getIconHeight() / 2, StartImg.getIconWidth(), StartImg.getIconHeight());
         playButton.setBorderPainted(false);
         playButton.setContentAreaFilled(false);
+        exitImg = new ImageIcon("src/img/EXIT.png");
+        exitButton = new JButton();
+        exitButton.setIcon(exitImg);
+        exitButton.setBounds(FRAME_WIDTH / 2 - exitImg.getIconWidth() / 2, FRAME_HEIGHT / 2 + StartImg.getIconHeight()/2 , exitImg.getIconWidth(), exitImg.getIconHeight());
+        exitButton.setBorderPainted(false);
+        exitButton.setContentAreaFilled(false);
         switchbackgroundJLabel.add(playButton);
         playButton.addMouseListener(startGamelistener);
+        switchbackgroundJLabel.add(exitButton);
+        exitButton.addMouseListener(exitGamelistener);
     }
     private void playSound(String soundFilePath) {
         try {
@@ -273,7 +290,7 @@ public class Game {
             else
                 label.addMouseListener(labelMouseListener);
         }
-        final Icon icon = label.getIcon();
+
         int minX = 340;
         int maxX = FRAME_WIDTH - minX - 110;
         scheduler.schedule(() -> {
@@ -291,7 +308,7 @@ public class Game {
                     // System.out.println("still");
                     if (positionY[0] >= FRAME_HEIGHT) {
                         label.setVisible(false);
-                        label.setIcon(icon);
+                        
                         backgroundlabel.remove(label);
                         // backgroundlabel.repaint();
                         ((Timer) e.getSource()).stop();
