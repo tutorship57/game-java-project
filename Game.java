@@ -11,8 +11,6 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineEvent;   
 import javax.sound.sampled.LineListener;
-import java.io.File;
-import java.io.IOException;
 
 
 public class Game {
@@ -29,11 +27,13 @@ public class Game {
     private ImageIcon exitImg;
     private ImageIcon backgroundImage;
     private ImageIcon backImg;
+    private ImageIcon gameNameImg;
     private JLabel switchbackgroundJLabel;
     private JLabel scoreBox;
     private JLabel backgroundlabel;
     private JLabel timeBox;
     private JLabel countStart;
+    private JLabel gameName;
     private JButton backButton;
     private JButton playButton;
     private JButton exitButton;
@@ -45,7 +45,14 @@ public class Game {
     private boolean isStart = false;
     private String [] gameStartCount = {"  3","  2","  1"," GO!"};
     private int ind = 0;
-
+    
+    MouseAdapter labelMouseListener = new MouseAdapter() {
+        public void mousePressed(MouseEvent e) {
+            JLabel pressedLabel = (JLabel)e.getSource();
+            gameUpdate(pressedLabel);
+            playSound("src/sound/pop.wav");
+        }
+    };
     MouseAdapter wrongLabelListener = new MouseAdapter() {
         public void mousePressed(MouseEvent e) {
             JLabel pressedLabel = (JLabel)e.getSource();
@@ -54,19 +61,21 @@ public class Game {
             playSound("src/sound/quack.wav");
         }
     };
-    MouseAdapter  startGamelistener = new MouseAdapter() {
+    MouseAdapter startGamelistener = new MouseAdapter() {
         public void mouseClicked(MouseEvent e) {
             timeCounting = new Timer(1000,new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                decreaseTimeCount();
-            }
-        });
-            gameStartCounting =  new Timer(1000, new ActionListener() {
-            public void actionPerformed(ActionEvent e ){
-                letsStart();
-            } 
-        });
-            if(playButton == (JButton)e.getSource()){
+                public void actionPerformed(ActionEvent e) {
+                    decreaseTimeCount();
+                }
+            });
+            gameStartCounting = new Timer(1000, new ActionListener() {
+                public void actionPerformed(ActionEvent e ) {
+                    letsStart();
+                }
+            });
+            if (playButton == (JButton)e.getSource()) {
+                switchbackgroundJLabel.remove(gameName);
+                switchbackgroundJLabel.repaint();
                 container.remove(switchbackgroundJLabel);
                 Components();
                 scoreBox();
@@ -82,14 +91,6 @@ public class Game {
             if(exitButton == (JButton)e.getSource()){
                 System.exit(0);
             }
-        }
-    };
-    
-    MouseAdapter labelMouseListener = new MouseAdapter() {
-        public void mousePressed(MouseEvent e) {
-            JLabel pressedLabel = (JLabel)e.getSource();
-            gameUpdate(pressedLabel);
-            playSound("src/sound/pop.wav");
         }
     };
     public static void main(String[] args) {
@@ -111,17 +112,18 @@ public class Game {
         backgroundlabel.setLayout(null);
 
         Components2();
+        showGameName(); // first time only.
 
         frame.setBounds(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
         frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLocationRelativeTo(null);//let the background in the middle
+        frame.setLocationRelativeTo(null); //let the background in the middle
         frame.setVisible(true);
     }
     private void decreaseTimeCount() {
         timeScedule -= 1;
         timeBox.setText("" + timeScedule);
-        if(timeScedule <= 0) {
+        if (timeScedule <= 0) {
             timeCounting.stop();
             container.remove(backgroundlabel);
             Components2();
@@ -132,18 +134,18 @@ public class Game {
             isStart = false;
             timeScedule = 60;
         }
-        if(timeScedule < 6){
+        if (timeScedule < 6) {
             timeBox.setForeground(new Color(255, 0, 0));
         }
     }
     private void letsStart(){
         ind++;
-        if(ind == gameStartCount.length) {
+        if (ind == gameStartCount.length) {
             gameStartCounting.stop();
             backgroundlabel.remove(countStart);
             container.repaint();
             
-            startFalling(7);
+            startFalling(15);
             timeCounting.start();
             ind = 0;
         }else {
@@ -166,7 +168,7 @@ public class Game {
     }
     private void textStartCount() {
         countStart = new JLabel(gameStartCount[ind]);
-        countStart.setBounds(FRAME_WIDTH/2 - (30*gameStartCount[3].length()),(FRAME_HEIGHT/2)-200,300,300);
+        countStart.setBounds(FRAME_WIDTH / 2  - (30 *gameStartCount[3].length()),(FRAME_HEIGHT/2)-200,300,300);
         countStart.setForeground(new Color(0, 0, 0));
         countStart.setFont(new Font("Comic Sans MS", Font.BOLD, 100));
         backgroundlabel.add(countStart, BorderLayout.CENTER);
@@ -184,20 +186,26 @@ public class Game {
         switchbackgroundJLabel.add(showScore, BorderLayout.CENTER);
         switchbackgroundJLabel.add(maxScoreLabel, BorderLayout.CENTER);
     }
+    private void showGameName() {
+        gameNameImg = new ImageIcon("src/img/gameName.png");
+        gameName = new JLabel(gameNameImg);
+        gameName.setBounds((FRAME_WIDTH / 2 - gameNameImg.getIconWidth() / 2) - 5, 75 , gameNameImg.getIconWidth(), gameNameImg.getIconHeight());
+        switchbackgroundJLabel.add(gameName);
+    }
     private void scoreBox() {
         Color textColor = new Color(255, 255, 255); // ตั้งค่าสี (RGB)
         Font font = new Font("Comic Sans MS", Font.BOLD, 25);
         scoreBox = new JLabel();
-        scoreBox.setBounds(60, 20, 150, 100);
+        scoreBox.setBounds(60, 30, 150, 100);
         backgroundlabel.add(scoreBox);
         scoreBox.setFont(font);
         scoreBox.setForeground(textColor);
         scoreBox.setText("Score: " + score);
 
         Color textColor2 = new Color(0, 0, 0); // ตั้งค่าสี (RGB)
-        Font font2 = new Font("Comic Sans MS", Font.BOLD, 60);
+        Font font2 = new Font("Comic Sans MS", Font.BOLD, 50);
         timeBox = new JLabel();
-        timeBox.setBounds((FRAME_WIDTH / 2) - 35, FRAME_HEIGHT / 20, 150, 100);
+        timeBox.setBounds((FRAME_WIDTH / 2) - 30, (FRAME_HEIGHT / 20) + 5, 150, 100);
         backgroundlabel.add(timeBox, BorderLayout.CENTER);
         timeBox.setFont(font2);
         timeBox.setForeground(textColor2);
@@ -221,37 +229,37 @@ public class Game {
         }
         scoreBox.setText("Score: " + score);
         clickedLabel.setVisible(false);
-
     }
     private void Components() {
-        backgroundImage = new ImageIcon("src/img/background.png");
+        backgroundImage = new ImageIcon("src/img/startbackground.png");
         backgroundlabel = new JLabel(backgroundImage);
         backgroundlabel.setLayout(null);
         container.add(backgroundlabel);
     }
     private void Components2() {
-        switchbackgroundImage = new ImageIcon("src/img/background.png");
-        switchbackgroundJLabel = new JLabel(backgroundImage);
+        switchbackgroundImage = new ImageIcon("src/img/startbackground.png");
+        switchbackgroundJLabel = new JLabel(switchbackgroundImage);
 
         backgroundlabel.setLayout(null);
         container.add(switchbackgroundJLabel);
         StartImg = new ImageIcon("src/img/start.png");
         playButton = new JButton();
         playButton.setIcon(StartImg);
-        playButton.setBounds(FRAME_WIDTH / 2 - StartImg.getIconWidth() / 2, FRAME_HEIGHT / 2 - StartImg.getIconHeight() / 2, StartImg.getIconWidth(), StartImg.getIconHeight());
+        playButton.setBounds(FRAME_WIDTH / 2 - StartImg.getIconWidth() / 2, 275, StartImg.getIconWidth(), StartImg.getIconHeight());
         playButton.setBorderPainted(false);
         playButton.setContentAreaFilled(false);
+        switchbackgroundJLabel.add(playButton, BorderLayout.CENTER);
+        playButton.addMouseListener(startGamelistener);
+        
         exitImg = new ImageIcon("src/img/EXIT.png");
         exitButton = new JButton();
         exitButton.setIcon(exitImg);
-        exitButton.setBounds(FRAME_WIDTH / 2 - exitImg.getIconWidth() / 2, FRAME_HEIGHT / 2 + StartImg.getIconHeight()/2 , exitImg.getIconWidth(), exitImg.getIconHeight());
+        exitButton.setBounds(FRAME_WIDTH / 2 - exitImg.getIconWidth() / 2, 470 , exitImg.getIconWidth(), exitImg.getIconHeight());
         exitButton.setBorderPainted(false);
         exitButton.setContentAreaFilled(false);
-        switchbackgroundJLabel.add(playButton);
-        playButton.addMouseListener(startGamelistener);
-        switchbackgroundJLabel.add(exitButton);
+        switchbackgroundJLabel.add(exitButton, BorderLayout.CENTER);
         exitButton.addMouseListener(exitGamelistener);
-        
+
     }
     private void playSound(String soundFilePath) {
         try {
@@ -308,7 +316,7 @@ public class Game {
             int positionX = rd.nextInt(maxX - minX + 1) + minX;
             final int[] positionY = {0};
             final double[] velocity = {isStart ? velo : FRAME_HEIGHT};
-            final double[] acceleration = {0.1};
+            final double[] acceleration = {0.5};
             label.setVisible(true);
             Timer timer = new Timer(17, new ActionListener() {
                 @Override
