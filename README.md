@@ -1,4 +1,4 @@
-# POP-OBJ Java Game Project | Object-Oriented Programming Project
+# 🐦 My Bird Attack Game (Java Swing)
 
 A simple 2D Java Swing game that allows a player to control a bird using the keyboard.
 The bird can move in four directions within a fixed game window.
