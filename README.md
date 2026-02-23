@@ -110,11 +110,3 @@ int frameHeight = 600;    // window height
 Developed as a Java Swing practice project for learning basic game mechanics and event handling.
 
 ---
-
-💬 ถ้าต้องการเวอร์ชัน:
-
-- ใส่ GIF gameplay
-- เขียนแบบโปรขึ้น (สำหรับ Portfolio)
-- หรือแยก MVC / OOP อธิบายเชิงวิชาการ
-
-บอกได้เลย เดี๋ยวจัดให้เหมาะกับสาย **Data / Software / Game dev CV** 😄
